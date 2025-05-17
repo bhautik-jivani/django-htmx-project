@@ -22,31 +22,32 @@ Create Person
 <form action="{% url 'myapp:book_create_view' %}" method="post" novalidate>
     {% csrf_token %}
     {{ form|crispy }}
-    
-    <h4>Persons</h4>
-    {{ person_formset.management_form }}
-    <div id="formset-container">
-        {% for form in person_formset %}
-            <div class="border p-2 mb-2">
-                {{ form.as_p }}
-                {% if form.can_delete %}
-                    {{ form.DELETE }}
-                {% endif %}
-            </div>
-        {% endfor %}
-    </div>
 
-    <button type="button"
-            class="btn btn-outline-secondary"
-            hx-get="{% url 'myapp:add_person_form_view' %}"
-            hx-target="#formset-container"
-            hx-swap="beforeend">
+    <button
+        type="button"
+        class="btn btn-outline-secondary"
+        hx-get="{% url 'myapp:add_person_form_view' %}"
+        hx-target="#modals-here"
+        hx-trigger="click"
+        data-bs-toggle="modal"
+        data-bs-target="#modals-here"
+    >
         + Add Person
     </button>
 
     <button type="submit" class="btn btn-outline-primary my-2">Save</button>
     <a href="{% url 'myapp:book_list_view' %}" class="btn btn-outline-secondary my-2">Cancel</a>
 </form>
+
+<div id="modals-here"
+    class="modal modal-blur fade"
+    style="display: none"
+    aria-hidden="false"
+    tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content"></div>
+    </div>
+</div>
 
 {% endblock %}
 

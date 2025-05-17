@@ -4,6 +4,7 @@ from django.views.generic import TemplateView, ListView, UpdateView, CreateView,
 from django.views.generic.edit import FormMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
+from django.http import HttpResponseForbidden
 
 # project imports
 from myapp.forms import BookForm, PersonFormSet, PersonForm
@@ -102,8 +103,33 @@ class BookUpdateView(UpdateView):
         return super().form_invalid(form)
 
 
-class AddPersonFormView(View):
-    def get(self, request):
-        form = PersonForm()
-        return render(request, 'myapp/book/partials/person_form.html', {'form': form})
+class AddPersonFormView(CreateView):
+    model = Person
+    form_class = PersonForm
+    template_name = 'myapp/book/partials/person_form.html'
+
+    # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
+    def dispatch(self, request, *args, **kwargs):
+        if request.htmx and request.htmx.request:
+            return super().dispatch(request, *args, **kwargs)
+        return HttpResponseForbidden("<h1>Access Denied</h1>")
+    
+    def form_valid(self, form):
+        try:
+            print("Form data:", form.cleaned_data)  # Debug print
+            response = super().form_valid(form)
+            print("Response:", response)  # Debug print
+            messages.success(self.request, 'Publisher created successfully!')
+            return response
+        except Exception as e:
+            print("Error:", str(e))  # Debug print
+            messages.error(self.request, f'Error creating publisher: {str(e)}')
+            return self.form_invalid(form)
+
+    def form_invalid(self, form):
+        print("Form errors:", form.errors)  # Debug print
+        messages.error(self.request, 'Please correct the errors below.')
+        return super().form_invalid(form)
+
+
 

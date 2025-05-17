@@ -14,7 +14,7 @@ from myapp.forms.person import PersonForm
 class BookForm(forms.ModelForm):
     class Meta:
         model = Book
-        fields = ['id', 'name', 'pages', 'price', 'rating', 'publisher', 'pubdate']
+        fields = ['id', 'name', 'pages', 'price', 'rating', 'persons', 'publisher', 'pubdate']
 
 
 # Create an inline formset for adding multiple persons to a book
