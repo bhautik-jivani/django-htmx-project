@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}
+Book List
+{% endblock %}
+
+{% block content %}
+<h1>Book List</h1>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div>
+    <a href="{% url 'myapp:book_create_view' %}" class="btn btn-outline-primary">Add Book</a>
+    <table class="table" >
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in object_list %}
+            <tr>
+                <td>{{ book.name }}</td>
+                <td>
+                    <a href="{% url 'myapp:book_update_view' book.id %}" class="btn btn-outline-primary">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+Create Person
+{% endblock %}
+
+{% block content %}
+<h1>Create Person</h1>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<form action="{% url 'myapp:book_create_view' %}" method="post" novalidate>
+    {% csrf_token %}
+    {{ form|crispy }}
+    
+    <h4>Persons</h4>
+    {{ person_formset.management_form }}
+    <div id="formset-container">
+        {% for form in person_formset %}
+            <div class="border p-2 mb-2">
+                {{ form.as_p }}
+                {% if form.can_delete %}
+                    {{ form.DELETE }}
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <button type="button"
+            class="btn btn-outline-secondary"
+            hx-get="{% url 'myapp:add_person_form_view' %}"
+            hx-target="#formset-container"
+            hx-swap="beforeend">
+        + Add Person
+    </button>
+
+    <button type="submit" class="btn btn-outline-primary my-2">Save</button>
+    <a href="{% url 'myapp:book_list_view' %}" class="btn btn-outline-secondary my-2">Cancel</a>
+</form>
+
+{% endblock %}
+

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}
+Person List
+{% endblock %}
+
+{% block content %}
+<h1>Person List</h1>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div>
+    <a href="{% url 'myapp:person_create_view' %}" class="btn btn-outline-primary">Add Person</a>
+    <table class="table" >
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Role</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for person in object_list %}
+            <tr>
+                <td>{{ person.first_name }}</td>
+                <td>{{ person.last_name }}</td>
+                <td>{{ person.get_role_display }}</td>
+                <td>
+                    <a href="{% url 'myapp:person_update_view' person.id %}" class="btn btn-outline-primary">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
