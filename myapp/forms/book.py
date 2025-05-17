@@ -2,8 +2,12 @@
 from django import forms
 from django.forms import formset_factory, inlineformset_factory, modelformset_factory
 
+# crispy forms imports
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Field, Div, HTML
+
 # project imports
-from myapp.models import Book, Person
+from myapp.models import Book, Person, Publisher
 
 # project forms imports
 from myapp.forms.person import PersonForm
@@ -16,7 +20,6 @@ class BookForm(forms.ModelForm):
         model = Book
         fields = ['id', 'name', 'pages', 'price', 'rating', 'persons', 'publisher', 'pubdate']
 
-
-# Create an inline formset for adding multiple persons to a book
-PersonFormSet = modelformset_factory(Person, form=PersonForm, extra=1, can_delete=True)
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['publisher'].label_from_instance = lambda obj: obj.name

@@ -21,19 +21,38 @@ Create Person
 
 <form action="{% url 'myapp:book_create_view' %}" method="post" novalidate>
     {% csrf_token %}
-    {{ form|crispy }}
-
-    <button
-        type="button"
-        class="btn btn-outline-secondary"
-        hx-get="{% url 'myapp:add_person_form_view' %}"
-        hx-target="#modals-here"
-        hx-trigger="click"
-        data-bs-toggle="modal"
-        data-bs-target="#modals-here"
-    >
-        + Add Person
-    </button>
+    
+    {% for field in form %}
+        {% if field.label == 'Persons' %}
+            {{ field|as_crispy_field }}
+            <button
+                type="button"
+                class="btn btn-outline-secondary mb-2"
+                hx-get="{% url 'myapp:add_person_form_view' %}"
+                hx-target="#modals-here"
+                hx-trigger="click"
+                data-bs-toggle="modal"
+                data-bs-target="#modals-here"
+            >
+                + Add Person
+            </button>
+        {% elif field.label == 'Publisher' %}
+            {{ field|as_crispy_field }}
+            <button
+                type="button"
+                class="btn btn-outline-secondary mb-2"
+                hx-get="{% url 'myapp:add_publisher_form_view' %}"
+                hx-target="#modals-here"
+                hx-trigger="click"
+                data-bs-toggle="modal"
+                data-bs-target="#modals-here"
+            >
+                + Add Publisher
+            </button>
+        {% else %}
+            {{ field|as_crispy_field }}
+        {% endif %}
+    {% endfor %}
 
     <button type="submit" class="btn btn-outline-primary my-2">Save</button>
     <a href="{% url 'myapp:book_list_view' %}" class="btn btn-outline-secondary my-2">Cancel</a>

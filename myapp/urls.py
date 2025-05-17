@@ -18,4 +18,5 @@ urlpatterns = [
     path('book/update/<int:pk>/', views.BookUpdateView.as_view(), name='book_update_view'),
 
     path('book/create/add-person/', views.AddPersonFormView.as_view(), name='add_person_form_view'),
+    path('book/create/add-publisher/', views.AddPublisherFormView.as_view(), name='add_publisher_form_view'),
 ]

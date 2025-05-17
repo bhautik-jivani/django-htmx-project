@@ -1,14 +1,13 @@
 # django library imports
 from django.shortcuts import render
 from django.views.generic import TemplateView, ListView, UpdateView, CreateView, View
-from django.views.generic.list import MultipleObjectMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import HttpResponseForbidden
 
 # project imports
-from myapp.forms import BookForm, PersonFormSet, PersonForm
-from myapp.models import Book, Person
+from myapp.forms import BookForm, PersonForm, PublisherForm
+from myapp.models import Book, Person, Publisher
 
 
 # Create your views here.
@@ -33,17 +32,6 @@ class BookCreateView(CreateView):
     #     if request.htmx and request.htmx.request:
     #         return super().dispatch(request, *args, **kwargs)
     #     return HttpResponseForbidden("<h1>Access Denied</h1>")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.request.POST:
-            context['person_formset'] = PersonFormSet(self.request.POST, queryset=Person.objects.none())
-        else:
-            context['person_formset'] = PersonFormSet(queryset=Person.objects.none())
-        return context
-
-
-
 
     def form_valid(self, form):
         context = self.get_context_data()
@@ -133,5 +121,33 @@ class AddPersonFormView(CreateView):
         messages.error(self.request, 'Please correct the errors below.')
         return super().form_invalid(form)
 
+class AddPublisherFormView(CreateView):
+    model = Publisher
+    form_class = PublisherForm
+    template_name = 'myapp/book/partials/publisher_form.html'
 
+    # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
+    def dispatch(self, request, *args, **kwargs):
+        if request.htmx and request.htmx.request:
+            return super().dispatch(request, *args, **kwargs)
+        return HttpResponseForbidden("<h1>Access Denied</h1>")
+    
+    def form_valid(self, form):
+        try:
+            # Save the form but don't redirect
+            self.object = form.save()
+            messages.success(self.request, 'Publisher created successfully!')
+            
+            # Only pass the newly created person
+            context = self.get_context_data()
+            context['object'] = self.object
+            context['form'] = self.form_class()
+            return self.render_to_response(context)
+        except Exception as e:
+            messages.error(self.request, f'Error creating publisher: {str(e)}')
+            return self.form_invalid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Please correct the errors below.')
+        return super().form_invalid(form)
 
