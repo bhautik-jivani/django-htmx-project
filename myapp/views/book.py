@@ -120,12 +120,10 @@ class AddPersonFormView(CreateView):
             self.object = form.save()
             messages.success(self.request, 'Person created successfully!')
             
-            # Add the updated person list to the context
+            # Only pass the newly created person
             context = self.get_context_data()
-            context['persons'] = Person.objects.all()
-            context['form'] = form
             context['object'] = self.object
-            
+            context['form'] = self.form_class()
             return self.render_to_response(context)
         except Exception as e:
             messages.error(self.request, f'Error creating person: {str(e)}')
