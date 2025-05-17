@@ -1,7 +1,7 @@
 # django library imports
 from django.shortcuts import render
 from django.views.generic import TemplateView, ListView, UpdateView, CreateView, View
-from django.views.generic.edit import FormMixin
+from django.views.generic.list import MultipleObjectMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import HttpResponseForbidden
@@ -116,18 +116,22 @@ class AddPersonFormView(CreateView):
     
     def form_valid(self, form):
         try:
-            print("Form data:", form.cleaned_data)  # Debug print
-            response = super().form_valid(form)
-            print("Response:", response)  # Debug print
-            messages.success(self.request, 'Publisher created successfully!')
-            return response
+            # Save the form but don't redirect
+            self.object = form.save()
+            messages.success(self.request, 'Person created successfully!')
+            
+            # Add the updated person list to the context
+            context = self.get_context_data()
+            context['persons'] = Person.objects.all()
+            context['form'] = form
+            context['object'] = self.object
+            
+            return self.render_to_response(context)
         except Exception as e:
-            print("Error:", str(e))  # Debug print
-            messages.error(self.request, f'Error creating publisher: {str(e)}')
+            messages.error(self.request, f'Error creating person: {str(e)}')
             return self.form_invalid(form)
 
     def form_invalid(self, form):
-        print("Form errors:", form.errors)  # Debug print
         messages.error(self.request, 'Please correct the errors below.')
         return super().form_invalid(form)
 

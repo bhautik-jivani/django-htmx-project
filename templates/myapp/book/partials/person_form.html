@@ -28,3 +28,15 @@
         </div>
     </div>
 </form>
+
+{% if form.is_valid %}
+<select name="persons" id="id_persons" class="selectmultiple form-select" multiple hx-swap-oob="true">
+    {% for person in persons %}
+        {% if person.id == object.id %}
+            <option value="{{ person.id }}" selected>{{ person|stringformat:"s" }}</option>
+        {% else %}
+            <option value="{{ person.id }}">{{ person|stringformat:"s" }}</option>
+        {% endif %}
+    {% endfor %}
+</select>
+{% endif %}
