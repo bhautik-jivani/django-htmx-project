@@ -58,11 +58,11 @@ class PersonUpdateView(UpdateView):
             print("Form data:", form.cleaned_data)  # Debug print
             response = super().form_valid(form)
             print("Response:", response)  # Debug print
-            messages.success(self.request, 'Person created successfully!')
+            messages.success(self.request, 'Person updated successfully!')
             return response
         except Exception as e:
             print("Error:", str(e))  # Debug print
-            messages.error(self.request, f'Error creating person: {str(e)}')
+            messages.error(self.request, f'Error updating person: {str(e)}')
             return self.form_invalid(form)
 
     def form_invalid(self, form):
