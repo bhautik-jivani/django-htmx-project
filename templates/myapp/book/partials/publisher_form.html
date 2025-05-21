@@ -1,6 +1,6 @@
 {% load crispy_forms_tags %}
 
-<form hx-post="{% url 'myapp:add_publisher_form_view' %}" hx-target="#modals-here" hx-swap="innerHTML" novalidate>
+<form hx-post="{% url 'myapp:add_publisher_form_view' %}" hx-target="#id_publisher" hx-swap="beforeend" hx-on:closemodal="hideModal()" novalidate>
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             {% csrf_token %}
@@ -28,9 +28,3 @@
         </div>
     </div>
 </form>
-
-{% if object %}
-<div hx-swap-oob="beforeend:#id_publisher">
-    <option value="{{ object.id }}" selected>{{ object.name }}</option>
-</div>
-{% endif %}

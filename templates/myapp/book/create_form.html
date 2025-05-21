@@ -70,3 +70,12 @@ Create Person
 
 {% endblock %}
 
+{% block scripts %}
+<script>
+    function hideModal() {
+        console.log('hideModal was called')
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modals-here'));
+        modal.hide();
+    }
+</script>
+{% endblock %}

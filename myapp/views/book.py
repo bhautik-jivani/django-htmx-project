@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.views.generic import TemplateView, ListView, UpdateView, CreateView, View
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponse
 
 # project imports
 from myapp.forms import BookForm, PersonForm, PublisherForm
@@ -106,20 +106,23 @@ class AddPersonFormView(CreateView):
         try:
             # Save the form but don't redirect
             self.object = form.save()
-            messages.success(self.request, 'Person created successfully!')
+            # messages.success(self.request, 'Person created successfully!')
             
-            # Only pass the newly created person
-            context = self.get_context_data()
-            context['object'] = self.object
-            context['form'] = self.form_class()
-            return self.render_to_response(context)
+            # Add option tag directly as OOB swap
+            option_tag = f'<option value="{self.object.id}" selected>{self.object}</option>'
+            response = HttpResponse(option_tag)
+            response['HX-Trigger'] = 'closemodal'
+            return response
         except Exception as e:
             messages.error(self.request, f'Error creating person: {str(e)}')
             return self.form_invalid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, 'Please correct the errors below.')
-        return super().form_invalid(form)
+        response = self.render_to_response(self.get_context_data(form=form))
+        response['HX-Retarget'] = '#modals-here'
+        response['HX-Reswap'] = 'innerHTML'
+        return response
 
 class AddPublisherFormView(CreateView):
     model = Publisher
@@ -136,18 +139,21 @@ class AddPublisherFormView(CreateView):
         try:
             # Save the form but don't redirect
             self.object = form.save()
-            messages.success(self.request, 'Publisher created successfully!')
+            # messages.success(self.request, 'Publisher created successfully!')
             
-            # Only pass the newly created person
-            context = self.get_context_data()
-            context['object'] = self.object
-            context['form'] = self.form_class()
-            return self.render_to_response(context)
+            # Add option tag directly as OOB swap
+            option_tag = f'<option value="{self.object.id}" selected>{self.object.name}</option>'
+            response = HttpResponse(option_tag)
+            response['HX-Trigger'] = 'closemodal'
+            return response
         except Exception as e:
             messages.error(self.request, f'Error creating publisher: {str(e)}')
             return self.form_invalid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, 'Please correct the errors below.')
-        return super().form_invalid(form)
+        response = self.render_to_response(self.get_context_data(form=form))
+        response['HX-Retarget'] = '#modals-here'
+        response['HX-Reswap'] = 'innerHTML'
+        return response
 

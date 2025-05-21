@@ -1,6 +1,6 @@
 {% load crispy_forms_tags %}
 
-<form hx-post="{% url 'myapp:add_person_form_view' %}" hx-target="#modals-here" hx-swap="innerHTML" novalidate>
+<form hx-post="{% url 'myapp:add_person_form_view' %}" hx-target="#id_persons" hx-swap="beforeend" hx-on:closemodal="hideModal()" novalidate>
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             {% csrf_token %}
@@ -13,7 +13,7 @@
                     {% for message in messages %}
                     <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
                         {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button type="button" id="close-modal" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     {% endfor %}
                 </div>
@@ -28,9 +28,3 @@
         </div>
     </div>
 </form>
-
-{% if object %}
-<div hx-swap-oob="beforeend:#id_persons">
-    <option value="{{ object.id }}" selected>{{ object|stringformat:"s" }}</option>
-</div>
-{% endif %}
