@@ -111,7 +111,8 @@ class AddPersonFormView(CreateView):
             # Add option tag directly as OOB swap
             option_tag = f'<option value="{self.object.id}" selected>{self.object}</option>'
             response = HttpResponse(option_tag)
-            response['HX-Trigger'] = 'closemodal'
+            # response['HX-Trigger'] = 'closemodal'
+            response['HX-Trigger-After-Swap'] = 'closemodal'
             return response
         except Exception as e:
             messages.error(self.request, f'Error creating person: {str(e)}')
@@ -122,6 +123,7 @@ class AddPersonFormView(CreateView):
         response = self.render_to_response(self.get_context_data(form=form))
         response['HX-Retarget'] = '#modals-here'
         response['HX-Reswap'] = 'innerHTML'
+        # response['HX-Trigger-After-Swap'] = 'fail'
         return response
 
 class AddPublisherFormView(CreateView):

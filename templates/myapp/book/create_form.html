@@ -59,11 +59,12 @@ Create Person
 </form>
 
 <div id="modals-here"
-    class="modal modal-blur fade"
+    class="modal fade"
+    aria-labelledby="modalHereLabel"
+    aria-hidden="true"
     style="display: none"
-    aria-hidden="false"
     tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content"></div>
     </div>
 </div>
@@ -72,10 +73,24 @@ Create Person
 
 {% block scripts %}
 <script>
-    function hideModal() {
-        console.log('hideModal was called')
-        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modals-here'));
-        modal.hide();
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalElement = document.getElementById('modals-here');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        // const modal = new bootstrap.Modal(modalElement);
+        
+        // Handle modal closing
+        document.addEventListener('closemodal', function() {
+            console.log(modal._isShown);
+            // modalElement.setAttribute('aria-hidden', 'true');
+            // modalElement.removeAttribute('aria-modal');
+            // modalElement.removeAttribute('tabindex');
+            
+            // Handle modal hidden
+            modal.hide();
+
+        });
+
+        
+    });
 </script>
 {% endblock %}
