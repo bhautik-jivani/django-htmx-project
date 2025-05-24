@@ -37,21 +37,14 @@ class BookCreateView(CreateView):
         context = self.get_context_data()
         try:
             print("Form data:", form.cleaned_data)  # Debug print
-            person_formset = context['person_formset']
             response = super().form_valid(form)
             print("Response:", response)  # Debug print
-            if person_formset.is_valid():
-                person_formset.instance = self.object
-                person_formset.save()
-            else:
-                self.object.delete()
-                messages.error(self.request, 'Person creation failed!')
-                return self.form_invalid(form)
-            messages.success(self.request, 'Person created successfully!')
+            
+            messages.success(self.request, 'Book created successfully!')
             return response
         except Exception as e:
             print("Error:", str(e))  # Debug print
-            messages.error(self.request, f'Error creating person: {str(e)}')
+            messages.error(self.request, f'Error creating book: {str(e)}')
             return self.form_invalid(form)
 
     def form_invalid(self, form):
@@ -78,11 +71,11 @@ class BookUpdateView(UpdateView):
             print("Form data:", form.cleaned_data)  # Debug print
             response = super().form_valid(form)
             print("Response:", response)  # Debug print
-            messages.success(self.request, 'Publisher created successfully!')
+            messages.success(self.request, 'Book updated successfully!')
             return response
         except Exception as e:
             print("Error:", str(e))  # Debug print
-            messages.error(self.request, f'Error creating publisher: {str(e)}')
+            messages.error(self.request, f'Error creating book: {str(e)}')
             return self.form_invalid(form)
 
     def form_invalid(self, form):

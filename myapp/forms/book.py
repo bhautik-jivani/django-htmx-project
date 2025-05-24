@@ -19,6 +19,9 @@ class BookForm(forms.ModelForm):
     class Meta:
         model = Book
         fields = ['id', 'name', 'pages', 'price', 'rating', 'persons', 'publisher', 'pubdate']
+        widgets = {
+            'pubdate': forms.DateInput(attrs={'type': 'date'})
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -24,6 +24,11 @@ Book List
         <thead>
             <tr>
                 <th>Name</th>
+                <th>Pages</th>
+                <th>Price</th>
+                <th>Rating</th>
+                <th>Publisher</th>
+                <th>Pubdate</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -31,6 +36,11 @@ Book List
             {% for book in object_list %}
             <tr>
                 <td>{{ book.name }}</td>
+                <td>{{ book.pages }}</td>
+                <td>{{ book.price }}</td>
+                <td>{{ book.rating }}</td>
+                <td>{{ book.publisher.name }}</td>
+                <td>{{ book.pubdate }}</td>
                 <td>
                     <a href="{% url 'myapp:book_update_view' book.id %}" class="btn btn-outline-primary">Edit</a>
                 </td>
