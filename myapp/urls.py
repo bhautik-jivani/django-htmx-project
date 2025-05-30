@@ -17,6 +17,13 @@ urlpatterns = [
     path('book/create/', views.BookCreateView.as_view(), name='book_create_view'),
     path('book/update/<int:pk>/', views.BookUpdateView.as_view(), name='book_update_view'),
 
+    path('store/', views.StoreListView.as_view(), name='store_list_view'),
+    path('store/create/', views.StoreCreateView.as_view(), name='store_create_view'),
+]
+
+htmx_urlpatterns = [
     path('book/create/add-person/', views.AddPersonFormView.as_view(), name='add_person_form_view'),
     path('book/create/add-publisher/', views.AddPublisherFormView.as_view(), name='add_publisher_form_view'),
 ]
+
+urlpatterns += htmx_urlpatterns
