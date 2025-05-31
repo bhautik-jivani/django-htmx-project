@@ -1,0 +1,19 @@
+{% load crispy_forms_tags %}
+
+<div class="row mb-3 book-form-row">
+    {% for field in form %}
+        {% if field.is_hidden %}
+            {{ field }}
+        {% elif field == form.DELETE %}
+            <div class="col-md-3 d-flex justify-content-start align-items-center">
+                <button type="button" class="btn btn-outline-danger" onclick="remove_formset_count()">
+                    <i class="bi bi-trash"></i> {{form.DELETE.label}}
+                </button>
+            </div>
+        {% else %}
+            <div class="col-md-3">
+                {{ field|as_crispy_field }}
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>

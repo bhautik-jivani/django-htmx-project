@@ -45,6 +45,9 @@ class Book(models.Model):
     # Many-to-many relationship with a through model for roles
     persons = models.ManyToManyField(Person)
 
+    def __str__(self):
+        return f"{self.name} ({self.pages} pages) - {self.rating} rating"
+
 
 # class BookPersonRole(models.Model):
 #     book = models.ForeignKey(Book, on_delete=models.CASCADE)

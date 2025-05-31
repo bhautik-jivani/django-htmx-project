@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.http import HttpResponseForbidden, HttpResponse
 
 # project imports
-from myapp.forms import StoreForm, BookForm, PersonForm, PublisherForm
+from myapp.forms import StoreForm, StoreBookFormSet, BookForm, PersonForm, PublisherForm
 from myapp.models import Book, Person, Publisher, Store
 
 
@@ -23,7 +23,6 @@ class StoreListView(ListView):
 class StoreCreateView(CreateView):
     model = Store
     form_class = StoreForm
-    # fields = ['first_name', 'last_name']
     template_name = 'myapp/store/create_form.html'
     success_url = reverse_lazy('myapp:store_list_view')
 
@@ -33,19 +32,25 @@ class StoreCreateView(CreateView):
     #         return super().dispatch(request, *args, **kwargs)
     #     return HttpResponseForbidden("<h1>Access Denied</h1>")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['formset'] = StoreBookFormSet(self.request.POST, instance=self.object)
+        else:
+            context['formset'] = StoreBookFormSet(instance=self.object)
+        return context
+
     def form_valid(self, form):
         context = self.get_context_data()
-        try:
-            print("Form data:", form.cleaned_data)  # Debug print
-            response = super().form_valid(form)
-            print("Response:", response)  # Debug print
-            
-            messages.success(self.request, 'Book created successfully!')
-            return response
-        except Exception as e:
-            print("Error:", str(e))  # Debug print
-            messages.error(self.request, f'Error creating book: {str(e)}')
-            return self.form_invalid(form)
+        formset = context['formset']
+        if formset.is_valid():
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            messages.success(self.request, 'Store created successfully!')
+            return super().form_valid(form)
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
 
     def form_invalid(self, form):
         print("Form errors:", form.errors)  # Debug print
@@ -82,3 +87,14 @@ class StoreCreateView(CreateView):
 #         print("Form errors:", form.errors)  # Debug print
 #         messages.error(self.request, 'Please correct the errors below.')
 #         return super().form_invalid(form)
+
+
+class AddBookFormView(View):
+    def get(self, request):
+        index = request.GET.get('index', 0)
+        formset = StoreBookFormSet()
+        form = formset.empty_form
+        form.prefix = f"{formset.prefix}-{index}"
+        response = render(request, 'myapp/store/add_book_form.html', {'form': form})
+        response['HX-Trigger-After-Swap'] = 'update_formset_count'
+        return response

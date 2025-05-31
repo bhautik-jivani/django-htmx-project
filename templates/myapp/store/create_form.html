@@ -23,36 +23,19 @@ Create Store
     {% csrf_token %}
     
     {% for field in form %}
-        {% if field.label == 'Persons' %}
-            {{ field|as_crispy_field }}
-            <button
-                type="button"
-                class="btn btn-outline-secondary mb-2"
-                hx-get="{% url 'myapp:add_person_form_view' %}"
-                hx-target="#modals-here"
-                hx-trigger="click"
-                data-bs-toggle="modal"
-                data-bs-target="#modals-here"
-            >
-                + Add Person
-            </button>
-        {% elif field.label == 'Publisher' %}
-            {{ field|as_crispy_field }}
-            <button
-                type="button"
-                class="btn btn-outline-secondary mb-2"
-                hx-get="{% url 'myapp:add_publisher_form_view' %}"
-                hx-target="#modals-here"
-                hx-trigger="click"
-                data-bs-toggle="modal"
-                data-bs-target="#modals-here"
-            >
-                + Add Publisher
-            </button>
-        {% else %}
-            {{ field|as_crispy_field }}
-        {% endif %}
+        {{ field|as_crispy_field }}
     {% endfor %}
+
+    {{ formset.management_form }}
+    <div class="row" id="add-book-form">
+        {% for form in formset %}
+            {% include "myapp/store/add_book_form.html" with form=form %}
+        {% endfor %}
+    </div>
+
+    <div>
+        <button type="button" class="btn btn-outline-primary my-2" id="add-more-book-button" hx-get="{% url 'myapp:add_book_form_view' %}" hx-target="#add-book-form" hx-swap="beforeend" hx-vals="js:{'index': document.getElementById('id_{{formset.prefix}}-TOTAL_FORMS').value}">+Add More Items</button>
+    </div>
 
     <button type="submit" class="btn btn-outline-primary my-2">Save</button>
     <a href="{% url 'myapp:book_list_view' %}" class="btn btn-outline-secondary my-2">Cancel</a>
@@ -87,8 +70,26 @@ Create Store
             
             // Handle modal hidden
             modal.hide();
-
         });
+        
+        // Handle update formset count
+        document.addEventListener('update_formset_count', function() {
+            console.log('update_formset_count');
+            const formsetCount = document.getElementById(`id_{{formset.prefix}}-TOTAL_FORMS`);
+            console.log("BEFORE: formsetCount.value", formsetCount.value, "type", typeof formsetCount.value);
+            formsetCount.value = parseInt(formsetCount.value) + 1 ;
+            console.log("AFTER: formsetCount.value", formsetCount.value, "type", typeof formsetCount.value);
+        });
+       
+        document.addEventListener('remove_formset_count', function() {
+            console.log('remove_formset_count');
+            const formsetCount = document.getElementById(`id_{{formset.prefix}}-TOTAL_FORMS`);
+            console.log("BEFORE: formsetCount.value", formsetCount.value, "type", typeof formsetCount.value);
+            formsetCount.value = parseInt(formsetCount.value) - 1 ;
+            console.log("AFTER: formsetCount.value", formsetCount.value, "type", typeof formsetCount.value);
+        });
+
+
 
         
     });
