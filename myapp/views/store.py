@@ -50,8 +50,10 @@ class StoreCreateView(CreateView):
         try:
             if formset.is_valid():
                 with transaction.atomic():
-                    super().form_valid(form)
-                    formset.store = self.object
+                    # First save the store
+                    self.object = form.save()
+                    # Then set the store on the formset and save it
+                    formset.instance = self.object
                     formset.save()
                 messages.success(self.request, 'Store created successfully!')
                 return super().form_valid(form)
