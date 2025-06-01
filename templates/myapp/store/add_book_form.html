@@ -5,10 +5,10 @@
         {% if field.is_hidden %}
             {{ field }}
         {% elif field == form.DELETE %}
-            <div class="col-md-3 d-flex justify-content-start align-items-center">
-                <button type="button" class="btn btn-outline-danger" onclick="remove_formset_count()">
-                    <i class="bi bi-trash"></i> {{form.DELETE.label}}
-                </button>
+            <div class="col-md d-flex align-items-center justify-content-start">
+                <a href="javascript:void(0);" type="button" class="delete-row btn btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                </a>
             </div>
         {% else %}
             <div class="col-md-3">

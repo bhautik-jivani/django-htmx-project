@@ -4,6 +4,7 @@ from django.views.generic import TemplateView, ListView, UpdateView, CreateView,
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import HttpResponseForbidden, HttpResponse
+from django.db import transaction
 
 # project imports
 from myapp.forms import StoreForm, StoreBookFormSet, BookForm, PersonForm, PublisherForm
@@ -42,15 +43,24 @@ class StoreCreateView(CreateView):
 
     def form_valid(self, form):
         context = self.get_context_data()
+        print(f"Form data: {form.cleaned_data}")
+        print(f"Context: {context}")
         formset = context['formset']
-        if formset.is_valid():
-            self.object = form.save()
-            formset.instance = self.object
-            formset.save()
-            messages.success(self.request, 'Store created successfully!')
-            return super().form_valid(form)
-        else:
-            return self.render_to_response(self.get_context_data(form=form))
+        print(f"Formset: {formset.cleaned_data}")
+        try:
+            if formset.is_valid():
+                with transaction.atomic():
+                    super().form_valid(form)
+                    formset.store = self.object
+                    formset.save()
+                messages.success(self.request, 'Store created successfully!')
+                return super().form_valid(form)
+            else:
+                return self.render_to_response(self.get_context_data(form=form))
+        except Exception as e:
+            print(f"Error: {e}")
+            messages.error(self.request, f'Error creating store: {str(e)}')
+            return self.form_invalid(form)
 
     def form_invalid(self, form):
         print("Form errors:", form.errors)  # Debug print
@@ -92,6 +102,10 @@ class StoreCreateView(CreateView):
 class AddBookFormView(View):
     def get(self, request):
         index = request.GET.get('index', 0)
+        try:
+            index = int(index)
+        except ValueError:
+            index = 0
         formset = StoreBookFormSet()
         form = formset.empty_form
         form.prefix = f"{formset.prefix}-{index}"
