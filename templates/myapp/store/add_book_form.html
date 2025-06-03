@@ -6,7 +6,7 @@
     {% elif field == form.DELETE %}
         <div class="col-md d-flex align-items-center justify-content-start">
             <a href="javascript:void(0);" type="button" id="{{ form.prefix }}-DELETE" class="delete-row btn btn-outline-danger">
-                <i class="bi bi-trash"></i>
+                <i class="bi bi-trash"></i> {{ form.DELETE.label }}
             </a>
         </div>
     {% else %}
