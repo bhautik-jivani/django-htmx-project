@@ -19,18 +19,28 @@ Create Store
 </div>
 {% endif %}
 
+non_field_errors: {{form.non_field_errors}}
+{% if form.non_field_errors %}
+<div class="messages">
+    {% for message in form.non_field_errors %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 <form action="{% url 'myapp:store_create_view' %}" method="post" novalidate>
     {% csrf_token %}
-    
     {% for field in form %}
         {{ field|as_crispy_field }}
     {% endfor %}
-
-    {{ formset.management_form }}
-    <div class="row" id="add-book-form">
-        {% for form in formset %}
-            {% include "myapp/store/add_book_form.html" with form=form %}
-        {% endfor %}
+    <div id="add-book-form-container">
+        {% include "myapp/store/add_book_form.html" with formset=formset %}
+    </div>
+    <div>
+        <button type="button" class="btn btn-outline-primary my-2" id="add-book-form-button" hx-get="{% url 'myapp:add_book_form_view' %}" hx-vals="js:{'index': document.getElementById('id_{{formset.prefix}}-TOTAL_FORMS').value}" hx-target="#add-book-form-container" hx-swap="innerHTML">+Add More Items</button>
     </div>
 
     <button type="submit" class="btn btn-outline-primary my-2">Save</button>
@@ -69,14 +79,16 @@ Create Store
             modal.hide();
         });
 
-        $('#add-book-form').formset({
-            addText: '+Add More Items',
-            deleteText: '',
-            prefix: '{{formset.prefix}}',
-            addCssClass: 'btn btn-outline-primary my-2',
-            deleteCssClass: 'delete-row',
+        document.addEventListener('update_formset_item_url', function() {
+            // console.log('update_formset_item_url', {{ formset.total_form_count }});
+            // const totlaFormsCount = document.getElementById('id_{{formset.prefix}}-TOTAL_FORMS');
+            // console.log('totlaFormsCount', totlaFormsCount);
+            // const addBookFormButton = document.getElementById('add-book-form-button');
+            // const oldHxGetUrl = addBookFormButton.getAttribute('hx-get');
+            // console.log('oldHxGetUrl', oldHxGetUrl);
+            // const newHxGetUrl = "{% url 'myapp:add_book_form_view' %}?index=" + totlaFormsCount.value;
+            // addBookFormButton.setAttribute('hx-get', newHxGetUrl);
         });
-        
     });
 </script>
 {% endblock %}

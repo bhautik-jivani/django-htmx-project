@@ -24,7 +24,7 @@ class StoreForm(forms.ModelForm):
 class StoreBookForm(forms.ModelForm):
     class Meta:
         model = StoreBook
-        fields = ['id', 'store', 'book', 'price_in_store', 'stock_count']
+        fields = ['id', 'book', 'price_in_store', 'stock_count']
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -43,7 +43,11 @@ StoreBookFormSet = inlineformset_factory(
     Store,
     StoreBook,
     form=StoreBookForm,
-    extra=1,
+    extra=0,
+    min_num=1,
+    max_num=10,
+    validate_min=True,
+    validate_max=True,
     can_delete=True,
 )
 
