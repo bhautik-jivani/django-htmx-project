@@ -8,28 +8,19 @@ Create Store
 {% block content %}
 <h1>Create Store</h1>
 
-{% if messages %}
-<div class="messages">
-    {% for message in messages %}
-    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endfor %}
+{% for message in messages %}
+<div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
-{% endif %}
+{% endfor %}
 
-non_field_errors: {{form.non_field_errors}}
-{% if form.non_field_errors %}
-<div class="messages">
-    {% for message in form.non_field_errors %}
+{% for form_error in form.non_field_errors %}
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        {{ message }}
+        {{ form_error }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    {% endfor %}
-</div>
-{% endif %}
+{% endfor %}
 
 <form action="{% url 'myapp:store_create_view' %}" method="post" novalidate>
     {% csrf_token %}
@@ -37,10 +28,22 @@ non_field_errors: {{form.non_field_errors}}
         {{ field|as_crispy_field }}
     {% endfor %}
     <div id="add-book-form-container">
-        {% include "myapp/store/add_book_form.html" with formset=formset %}
+        {{ formset.management_form }}
+        <div class="row" id="add-book-form">
+
+            {% for formset_error in formset.non_form_errors %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ formset_error }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% for form in formset %}
+                {% include "myapp/store/add_book_form.html" with form=form %}
+            {% endfor %}
+        </div>
     </div>
     <div>
-        <button type="button" class="btn btn-outline-primary my-2" id="add-book-form-button" hx-get="{% url 'myapp:add_book_form_view' %}" hx-vals="js:{'index': document.getElementById('id_{{formset.prefix}}-TOTAL_FORMS').value}" hx-target="#add-book-form-container" hx-swap="innerHTML">+Add More Items</button>
+        <button type="button" class="btn btn-outline-primary my-2" id="add-book-form-button" hx-get="{% url 'myapp:add_book_form_view' %}" hx-vals="js:{'index': document.getElementById('id_{{formset.prefix}}-TOTAL_FORMS').value}" hx-target="#add-book-form" hx-swap="beforeend">+Add More Items</button>
     </div>
 
     <button type="submit" class="btn btn-outline-primary my-2">Save</button>
@@ -67,6 +70,9 @@ non_field_errors: {{form.non_field_errors}}
         const modalElement = document.getElementById('modals-here');
         const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
         // const modal = new bootstrap.Modal(modalElement);
+        const formsetCount = document.getElementById(`id_{{formset.prefix}}-TOTAL_FORMS`);
+        const formsetMaxCount = document.getElementById(`id_{{formset.prefix}}-MAX_NUM_FORMS`);
+        const addBookFormButton = document.getElementById('add-book-form-button');
         
         // Handle modal closing
         document.addEventListener('closemodal', function() {
@@ -80,14 +86,16 @@ non_field_errors: {{form.non_field_errors}}
         });
 
         document.addEventListener('update_formset_item_url', function() {
-            // console.log('update_formset_item_url', {{ formset.total_form_count }});
-            // const totlaFormsCount = document.getElementById('id_{{formset.prefix}}-TOTAL_FORMS');
-            // console.log('totlaFormsCount', totlaFormsCount);
-            // const addBookFormButton = document.getElementById('add-book-form-button');
-            // const oldHxGetUrl = addBookFormButton.getAttribute('hx-get');
-            // console.log('oldHxGetUrl', oldHxGetUrl);
-            // const newHxGetUrl = "{% url 'myapp:add_book_form_view' %}?index=" + totlaFormsCount.value;
-            // addBookFormButton.setAttribute('hx-get', newHxGetUrl);
+            console.log('update_formset_count');
+            
+            console.log("BEFORE: formsetCount.value", formsetCount.value, "type", typeof formsetCount.value);
+            formsetCount.value = parseInt(formsetCount.value) + 1 ;
+            console.log("AFTER: formsetCount.value", formsetCount.value, "type", typeof formsetCount.value);
+            if (formsetCount.value < formsetMaxCount.value) {
+                addBookFormButton.disabled = false;
+            } else {
+                addBookFormButton.disabled = false;
+            }
         });
     });
 </script>

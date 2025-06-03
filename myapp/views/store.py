@@ -111,15 +111,15 @@ class AddBookFormView(View):
     #     response['HX-Trigger-After-Swap'] = 'update_formset_count'
     #     return response
 
-    def post(self, request):
+    def get(self, request):
         index = request.GET.get('index', 0)
         try:
             index = int(index)
         except ValueError:
             index = 0
-        formset = StoreBookFormSet(request.POST)
-        formset.extra = index
-        print(f"formset.total_form_count: {formset.total_form_count}")
-        response = render(request, 'myapp/store/add_book_form.html', {'formset': formset})
-        # response['HX-Trigger-After-Swap'] = 'update_formset_item_url'
+        formset = StoreBookFormSet()
+        form = formset.empty_form
+        form.prefix = f"{formset.prefix}-{index}"
+        response = render(request, 'myapp/store/add_book_form.html', {'form': form})
+        response['HX-Trigger-After-Swap'] = 'update_formset_item_url'
         return response
