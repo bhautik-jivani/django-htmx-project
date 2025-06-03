@@ -28,19 +28,7 @@ Create Store
         {{ field|as_crispy_field }}
     {% endfor %}
     <div id="add-book-form-container">
-        {{ formset.management_form }}
-        <div class="row" id="add-book-form">
-
-            {% for formset_error in formset.non_form_errors %}
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ formset_error }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {% endfor %}
-            {% for form in formset %}
-                {% include "myapp/store/add_book_form.html" with form=form %}
-            {% endfor %}
-        </div>
+        {% include "myapp/store/partials/add_book_formset.html" with formset=formset %}
     </div>
     <div>
         <button type="button" class="btn btn-outline-primary my-2" id="add-book-form-button" hx-get="{% url 'myapp:add_book_form_view' %}" hx-vals="js:{'index': document.getElementById('id_{{formset.prefix}}-TOTAL_FORMS').value}" hx-target="#add-book-form" hx-swap="beforeend">+Add More Items</button>

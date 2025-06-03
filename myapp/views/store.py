@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.views.generic import TemplateView, ListView, UpdateView, CreateView, View
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.http import HttpResponseForbidden, HttpResponseRedirect, HttpResponse
 from django.db import transaction
 
 # project imports
@@ -29,7 +29,14 @@ class StoreCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        index = self.request.POST.get('index', 0)
+        try:
+            index = int(index)
+        except ValueError:
+            index = 0
+        context['index'] = index
         if self.request.POST:
+            print("self.request.POST", self.request.POST)
             context['formset'] = StoreBookFormSet(self.request.POST)
         else:
             context['formset'] = StoreBookFormSet()
@@ -120,6 +127,21 @@ class AddBookFormView(View):
         formset = StoreBookFormSet()
         form = formset.empty_form
         form.prefix = f"{formset.prefix}-{index}"
-        response = render(request, 'myapp/store/add_book_form.html', {'form': form})
+        response = render(request, 'myapp/store/partials/add_book_form.html', {'form': form, 'index': index})
         response['HX-Trigger-After-Swap'] = 'update_formset_item_url'
+        return response
+
+class RemoveBookFormView(View):
+
+    def post(self, request):
+        index = request.POST.get('index', 0)
+        try:
+            index = int(index)
+        except ValueError:
+            index = 0
+        print("RemoveBookFormView:request.POST", request.POST)
+        formset = StoreBookFormSet(request.POST)
+        formset.forms.pop(index)
+        response = render(request, 'myapp/store/partials/add_book_formset.html', {'formset': formset})
+        # response['HX-Trigger-After-Swap'] = 'update_formset_item_url'
         return response

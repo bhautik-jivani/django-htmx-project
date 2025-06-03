@@ -5,9 +5,9 @@
         {{ field }}
     {% elif field == form.DELETE %}
         <div class="col-md d-flex align-items-center justify-content-start">
-            <a href="javascript:void(0);" type="button" id="{{ form.prefix }}-DELETE" class="delete-row btn btn-outline-danger">
+            <button type="button" id="{{ form.prefix }}-DELETE" class="delete-row btn btn-outline-danger" hx-post="{% url 'myapp:remove_book_form_view' %}" hx-vals="js:{'index': '{{index}}'}" hx-target="#add-book-form-container" hx-swap="innerHTML">
                 <i class="bi bi-trash"></i> {{ form.DELETE.label }}
-            </a>
+            </button>
         </div>
     {% else %}
         <div class="col-md-3">
