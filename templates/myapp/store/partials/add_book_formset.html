@@ -1,5 +1,7 @@
+{% load crispy_forms_tags %}
+
 {{ formset.management_form }}
-<div class="row" id="add-book-form">
+<div>
 
     {% for formset_error in formset.non_form_errors %}
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -8,6 +10,30 @@
     </div>
     {% endfor %}
     {% for form in formset %}
-        {% include "myapp/store/partials/add_book_form.html" with form=form %}
+        <div class="mb-3 card">
+            <div class="card-body row position-relative">
+                {% for field in form %}
+                    {% if field.is_hidden %}
+                        {{ field }}
+                    {% elif field == form.DELETE %}
+                        <div class="position-absolute top-0 start-100 translate-middle">
+                            {% if forloop.parentloop.first and formset.total_form_count == 1 %}
+                                <button type="button" id="{{ form.prefix }}-DELETE" class="delete-row btn btn-outline-danger" disabled>
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            {% else %}
+                                <button type="button" id="{{ form.prefix }}-DELETE" class="delete-row btn btn-outline-danger" hx-post="{% url 'myapp:remove_book_form_view' %}" hx-vals="js:{'index': '{{forloop.parentloop.counter0}}'}" hx-target="#add-book-form-container" hx-swap="innerHTML">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="col-md-3">
+                            {{ field|as_crispy_field }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
     {% endfor %}
 </div>

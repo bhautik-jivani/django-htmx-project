@@ -31,7 +31,7 @@ Create Store
         {% include "myapp/store/partials/add_book_formset.html" with formset=formset %}
     </div>
     <div>
-        <button type="button" class="btn btn-outline-primary my-2" id="add-book-form-button" hx-get="{% url 'myapp:add_book_form_view' %}" hx-vals="js:{'index': document.getElementById('id_{{formset.prefix}}-TOTAL_FORMS').value}" hx-target="#add-book-form" hx-swap="beforeend">+Add More Items</button>
+        <button type="button" class="btn btn-outline-primary my-2" id="add-book-form-button" hx-post="{% url 'myapp:add_book_form_view' %}" hx-target="#add-book-form-container" hx-swap="innerHTML">+Add More Items</button>
     </div>
 
     <button type="submit" class="btn btn-outline-primary my-2">Save</button>
@@ -55,15 +55,12 @@ Create Store
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const modalElement = document.getElementById('modals-here');
-        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-        // const modal = new bootstrap.Modal(modalElement);
-        const formsetCount = document.getElementById(`id_{{formset.prefix}}-TOTAL_FORMS`);
-        const formsetMaxCount = document.getElementById(`id_{{formset.prefix}}-MAX_NUM_FORMS`);
-        const addBookFormButton = document.getElementById('add-book-form-button');
-        
         // Handle modal closing
         document.addEventListener('closemodal', function() {
+            const modalElement = document.getElementById('modals-here');
+            const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+            // const modal = new bootstrap.Modal(modalElement);
+
             console.log(modal._isShown);
             // modalElement.setAttribute('aria-hidden', 'true');
             // modalElement.removeAttribute('aria-modal');
@@ -73,18 +70,22 @@ Create Store
             modal.hide();
         });
 
-        document.addEventListener('update_formset_item_url', function() {
+        document.addEventListener('update_formset_button', function() {
             console.log('update_formset_count');
+            const formsetCount = document.getElementById(`id_{{formset.prefix}}-TOTAL_FORMS`);
+            const formsetMaxCount = document.getElementById(`id_{{formset.prefix}}-MAX_NUM_FORMS`);
+            const addBookFormButton = document.getElementById('add-book-form-button');
             
-            console.log("BEFORE: formsetCount.value", formsetCount.value, "type", typeof formsetCount.value);
-            formsetCount.value = parseInt(formsetCount.value) + 1 ;
-            console.log("AFTER: formsetCount.value", formsetCount.value, "type", typeof formsetCount.value);
             if (formsetCount.value < formsetMaxCount.value) {
                 addBookFormButton.disabled = false;
             } else {
-                addBookFormButton.disabled = false;
+                addBookFormButton.disabled = true;
             }
         });
+        
+        // Dispatch the custom event on DOMContentLoaded
+        const event = new Event('update_formset_button');
+        document.dispatchEvent(event);
     });
 </script>
 {% endblock %}

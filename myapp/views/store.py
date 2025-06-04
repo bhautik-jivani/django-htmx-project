@@ -5,10 +5,11 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import HttpResponseForbidden, HttpResponseRedirect, HttpResponse
 from django.db import transaction
+from django.forms import inlineformset_factory
 
 # project imports
-from myapp.forms import StoreForm, StoreBookFormSet, BookForm, PersonForm, PublisherForm
-from myapp.models import Book, Person, Publisher, Store
+from myapp.forms import StoreForm, StoreBookFormSet, StoreBookForm, BookForm, PersonForm, PublisherForm
+from myapp.models import Book, Person, Publisher, Store, StoreBook
 
 
 # Create your views here.
@@ -105,33 +106,44 @@ class StoreCreateView(CreateView):
 
 
 class AddBookFormView(View):
-    # def get(self, request):
-    #     index = request.GET.get('index', 0)
-    #     try:
-    #         index = int(index)
-    #     except ValueError:
-    #         index = 0
-    #     formset = StoreBookFormSet()
-    #     form = formset.empty_form
-    #     form.prefix = f"{formset.prefix}-{index}"
-    #     response = render(request, 'myapp/store/add_book_form.html', {'form': form})
-    #     response['HX-Trigger-After-Swap'] = 'update_formset_count'
-    #     return response
+    # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
+    def dispatch(self, request, *args, **kwargs):
+        if request.htmx and request.htmx.request:
+            return super().dispatch(request, *args, **kwargs)
+        return HttpResponseForbidden("<h1>Access Denied</h1>")
 
-    def get(self, request):
-        index = request.GET.get('index', 0)
-        try:
-            index = int(index)
-        except ValueError:
-            index = 0
-        formset = StoreBookFormSet()
-        form = formset.empty_form
-        form.prefix = f"{formset.prefix}-{index}"
-        response = render(request, 'myapp/store/partials/add_book_form.html', {'form': form, 'index': index})
-        response['HX-Trigger-After-Swap'] = 'update_formset_item_url'
+    def post(self, request):
+        formset = StoreBookFormSet(request.POST)
+        inital_data = []
+        for form in formset.forms:
+            data = {}
+            for field in form:
+                if field.name != 'DELETE':
+                    data[field.name] = field.data
+            inital_data.append(data)
+        extra = len(inital_data)
+        StoreBookFormSet_Custom = inlineformset_factory(
+            Store,
+            StoreBook,
+            form=StoreBookForm,
+            extra=extra,
+            min_num=1,
+            max_num=3,
+            validate_min=True,
+            validate_max=True,
+            can_delete=True,
+        )
+        formset = StoreBookFormSet_Custom(initial=inital_data)
+        response = render(request, 'myapp/store/partials/add_book_formset.html', {'formset': formset})
+        response['HX-Trigger-After-Swap'] = 'update_formset_button'
         return response
 
 class RemoveBookFormView(View):
+    # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
+    def dispatch(self, request, *args, **kwargs):
+        if request.htmx and request.htmx.request:
+            return super().dispatch(request, *args, **kwargs)
+        return HttpResponseForbidden("<h1>Access Denied</h1>")
 
     def post(self, request):
         index = request.POST.get('index', 0)
@@ -139,9 +151,30 @@ class RemoveBookFormView(View):
             index = int(index)
         except ValueError:
             index = 0
-        print("RemoveBookFormView:request.POST", request.POST)
         formset = StoreBookFormSet(request.POST)
+        # Remove the form at the given index
         formset.forms.pop(index)
+
+        inital_data = []
+        for form in formset.forms:
+            data = {}
+            for field in form:
+                data[field.name] = field.data
+            inital_data.append(data)
+        
+        extra = len(inital_data) - 1 if len(inital_data) > 1 else 0
+        StoreBookFormSet_Custom = inlineformset_factory(
+            Store,
+            StoreBook,
+            form=StoreBookForm,
+            extra=extra,
+            min_num=1,
+            max_num=3,
+            validate_min=True,
+            validate_max=True,
+            can_delete=True,
+        )
+        formset = StoreBookFormSet_Custom(initial=inital_data)
         response = render(request, 'myapp/store/partials/add_book_formset.html', {'formset': formset})
-        # response['HX-Trigger-After-Swap'] = 'update_formset_item_url'
+        response['HX-Trigger-After-Swap'] = 'update_formset_button'
         return response
