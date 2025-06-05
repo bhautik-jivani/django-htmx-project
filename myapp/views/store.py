@@ -113,7 +113,6 @@ class AddBookFormView(View):
                 if field.name != 'DELETE':
                     data[field.name] = field.data
             inital_data.append(data)
-        print(f"inital_data: {inital_data}")
         extra = len(inital_data)
         StoreBookFormSet_Custom = inlineformset_factory(
             Store,
@@ -151,7 +150,6 @@ class RemoveBookFormView(View):
 
         form_obj = formset.forms[index]
         id = form_obj.data.get(f"{formset.prefix}-{index}-id")
-        print(f"id: {id}")
         if id:
             store_book_queryset = StoreBook.objects.filter(id=id)
             store_book_queryset.delete()
