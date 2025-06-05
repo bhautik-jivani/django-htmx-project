@@ -66,7 +66,6 @@ class StoreUpdateView(UpdateView):
     pk_url_kwarg = 'pk'
     model = Store
     form_class = StoreForm
-    # fields = ['first_name', 'last_name']
     template_name = 'myapp/store/update_form.html'
     success_url = reverse_lazy('myapp:store_list_view')
 
