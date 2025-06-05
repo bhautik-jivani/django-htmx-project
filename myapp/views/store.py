@@ -96,7 +96,7 @@ class StoreUpdateView(UpdateView):
             return self.render_to_response(context)
 
 
-class AddBookFormView(View):
+class AddBookFormsetView(View):
     # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
     def dispatch(self, request, *args, **kwargs):
         if request.htmx and request.htmx.request:
@@ -131,7 +131,7 @@ class AddBookFormView(View):
         response['HX-Trigger-After-Swap'] = 'update_formset_button'
         return response
 
-class RemoveBookFormView(View):
+class RemoveBookFormsetView(View):
     # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
     def dispatch(self, request, *args, **kwargs):
         if request.htmx and request.htmx.request:
@@ -178,4 +178,44 @@ class RemoveBookFormView(View):
         formset.management_form.initial["INITIAL_FORMS"] = initial_form_count
         response = render(request, 'myapp/store/partials/add_book_formset.html', {'formset': formset})
         response['HX-Trigger-After-Swap'] = 'update_formset_button'
+        return response
+    
+
+class AddBookFormView(CreateView):
+    model = Book
+    form_class = BookForm
+    template_name = 'myapp/store/partials/add_book_form.html'
+
+    # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
+    def dispatch(self, request, *args, **kwargs):
+        if request.htmx and request.htmx.request:
+            return super().dispatch(request, *args, **kwargs)
+        return HttpResponseForbidden("<h1>Access Denied</h1>")
+    
+    def form_valid(self, form):
+        context = self.get_context_data(form=form)
+        try:
+            # Save the form but don't redirect
+            self.object = form.save()
+            # messages.success(self.request, 'Publisher created successfully!')
+            
+            # Add option tag directly as OOB swap
+            option_tag = f'<option value="{self.object.id}" selected>{self.object.name}</option>'
+            response = HttpResponse(option_tag)
+            response['HX-Trigger'] = 'closemodal'
+            return response
+        except Exception as e:
+            # messages.error(self.request, f'Error creating publisher: {str(e)}')
+            form.add_error(None, f'Error creating publisher: {str(e)}')
+            response = self.render_to_response(context)
+            response['HX-Retarget'] = '#modals-here'
+            response['HX-Reswap'] = 'innerHTML'
+            return response
+
+    def form_invalid(self, form):
+        # messages.error(self.request, 'Please correct the errors below.')
+        context = self.get_context_data(form=form)
+        response = self.render_to_response(context)
+        response['HX-Retarget'] = '#modals-here'
+        response['HX-Reswap'] = 'innerHTML'
         return response
