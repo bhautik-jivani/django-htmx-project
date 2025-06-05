@@ -26,16 +26,16 @@ class StoreBookForm(forms.ModelForm):
         model = StoreBook
         fields = ['id', 'book', 'price_in_store', 'stock_count']
     
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Row(
-                Column('book', css_class='col-md-3'),
-                Column('price_in_store', css_class='col-md-3'),
-                Column('stock_count', css_class='col-md-3'),
-            )
-        )
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.helper = FormHelper()
+    #     self.helper.layout = Layout(
+    #         Row(
+    #             Column('book'),
+    #             Column('price_in_store'),
+    #             Column('stock_count'),
+    #         )
+    #     )
     
 
 
