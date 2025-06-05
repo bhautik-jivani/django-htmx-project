@@ -28,7 +28,7 @@ Update Store
         {{ field|as_crispy_field }}
     {% endfor %}
     <div id="add-book-form-container">
-        {% include "myapp/store/partials/add_book_formset.html" with formset=formset %}
+        {% include "myapp/store/partials/add_book_formset.html" with formset=formset object=object %}
     </div>
     <div>
         <button type="button" class="btn btn-outline-primary my-2" id="add-book-form-button" hx-post="{% url 'myapp:add_book_form_view' %}" hx-target="#add-book-form-container" hx-swap="innerHTML">+Add More Items</button>

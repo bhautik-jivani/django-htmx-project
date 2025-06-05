@@ -116,6 +116,7 @@ class AddBookFormView(View):
 
     def post(self, request):
         formset = StoreBookFormSet(request.POST)
+        initial_form_count = formset.initial_form_count()
         inital_data = []
         for form in formset.forms:
             data = {}
@@ -137,6 +138,7 @@ class AddBookFormView(View):
             can_delete=True,
         )
         formset = StoreBookFormSet_Custom(initial=inital_data)
+        formset.management_form.initial["INITIAL_FORMS"] = initial_form_count
         response = render(request, 'myapp/store/partials/add_book_formset.html', {'formset': formset})
         response['HX-Trigger-After-Swap'] = 'update_formset_button'
         return response
@@ -155,6 +157,7 @@ class RemoveBookFormView(View):
         except ValueError:
             index = 0
         formset = StoreBookFormSet(request.POST)
+        initial_form_count = formset.initial_form_count() - 1 if formset.initial_form_count() > 1 else 0
         # Remove the form at the given index
 
         form_obj = formset.forms[index]
@@ -185,6 +188,7 @@ class RemoveBookFormView(View):
             can_delete=True,
         )
         formset = StoreBookFormSet_Custom(initial=inital_data)
+        formset.management_form.initial["INITIAL_FORMS"] = initial_form_count
         response = render(request, 'myapp/store/partials/add_book_formset.html', {'formset': formset})
         response['HX-Trigger-After-Swap'] = 'update_formset_button'
         return response
