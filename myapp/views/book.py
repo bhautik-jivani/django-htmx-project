@@ -34,23 +34,15 @@ class BookCreateView(CreateView):
     #     return HttpResponseForbidden("<h1>Access Denied</h1>")
 
     def form_valid(self, form):
-        context = self.get_context_data()
+        context = self.get_context_data(form=form)
         try:
-            print("Form data:", form.cleaned_data)  # Debug print
             response = super().form_valid(form)
-            print("Response:", response)  # Debug print
-            
             messages.success(self.request, 'Book created successfully!')
             return response
         except Exception as e:
-            print("Error:", str(e))  # Debug print
-            messages.error(self.request, f'Error creating book: {str(e)}')
-            return self.form_invalid(form)
-
-    def form_invalid(self, form):
-        print("Form errors:", form.errors)  # Debug print
-        messages.error(self.request, 'Please correct the errors below.')
-        return super().form_invalid(form)
+            # messages.error(self.request, f'Error creating book: {str(e)}')
+            form.add_error(None, f'Error creating book: {str(e)}')
+            return self.render_to_response(context)
 
 class BookUpdateView(UpdateView):
     pk_url_kwarg = 'pk'
@@ -67,22 +59,15 @@ class BookUpdateView(UpdateView):
     #     return HttpResponseForbidden("<h1>Access Denied</h1>")
 
     def form_valid(self, form):
+        context = self.get_context_data(form=form)
         try:
-            print("Form data:", form.cleaned_data)  # Debug print
             response = super().form_valid(form)
-            print("Response:", response)  # Debug print
             messages.success(self.request, 'Book updated successfully!')
             return response
         except Exception as e:
-            print("Error:", str(e))  # Debug print
-            messages.error(self.request, f'Error creating book: {str(e)}')
-            return self.form_invalid(form)
-
-    def form_invalid(self, form):
-        print("Form errors:", form.errors)  # Debug print
-        messages.error(self.request, 'Please correct the errors below.')
-        return super().form_invalid(form)
-
+            # messages.error(self.request, f'Error updating book: {str(e)}')
+            form.add_error(None, f'Error updating book: {str(e)}')
+            return self.render_to_response(context)
 
 class AddPersonFormView(CreateView):
     model = Person
@@ -96,6 +81,7 @@ class AddPersonFormView(CreateView):
         return HttpResponseForbidden("<h1>Access Denied</h1>")
     
     def form_valid(self, form):
+        context = self.get_context_data(form=form)
         try:
             # Save the form but don't redirect
             self.object = form.save()
@@ -108,12 +94,18 @@ class AddPersonFormView(CreateView):
             response['HX-Trigger-After-Swap'] = 'closemodal'
             return response
         except Exception as e:
-            messages.error(self.request, f'Error creating person: {str(e)}')
-            return self.form_invalid(form)
+            # messages.error(self.request, f'Error creating person: {str(e)}')
+            form.add_error(None, f'Error creating person: {str(e)}')
+            print(f"form.errors: {form.errors}")
+            response = self.render_to_response(context)
+            response['HX-Retarget'] = '#modals-here'
+            response['HX-Reswap'] = 'innerHTML'
+            return response
 
     def form_invalid(self, form):
-        messages.error(self.request, 'Please correct the errors below.')
-        response = self.render_to_response(self.get_context_data(form=form))
+        # messages.error(self.request, 'Please correct the errors below.')
+        context = self.get_context_data(form=form)
+        response = self.render_to_response(context)
         response['HX-Retarget'] = '#modals-here'
         response['HX-Reswap'] = 'innerHTML'
         # response['HX-Trigger-After-Swap'] = 'fail'
@@ -131,6 +123,7 @@ class AddPublisherFormView(CreateView):
         return HttpResponseForbidden("<h1>Access Denied</h1>")
     
     def form_valid(self, form):
+        context = self.get_context_data(form=form)
         try:
             # Save the form but don't redirect
             self.object = form.save()
@@ -142,12 +135,17 @@ class AddPublisherFormView(CreateView):
             response['HX-Trigger'] = 'closemodal'
             return response
         except Exception as e:
-            messages.error(self.request, f'Error creating publisher: {str(e)}')
-            return self.form_invalid(form)
+            # messages.error(self.request, f'Error creating publisher: {str(e)}')
+            form.add_error(None, f'Error creating publisher: {str(e)}')
+            response = self.render_to_response(context)
+            response['HX-Retarget'] = '#modals-here'
+            response['HX-Reswap'] = 'innerHTML'
+            return response
 
     def form_invalid(self, form):
-        messages.error(self.request, 'Please correct the errors below.')
-        response = self.render_to_response(self.get_context_data(form=form))
+        # messages.error(self.request, 'Please correct the errors below.')
+        context = self.get_context_data(form=form)
+        response = self.render_to_response(context)
         response['HX-Retarget'] = '#modals-here'
         response['HX-Reswap'] = 'innerHTML'
         return response
