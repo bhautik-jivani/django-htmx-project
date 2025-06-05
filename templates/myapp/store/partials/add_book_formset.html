@@ -11,12 +11,12 @@
     {% endfor %}
     {% for form in formset %}
         <div class="mb-3 card">
-            <div class="card-body row position-relative">
+            <div class="card-body row">
                 {% for field in form %}
                     {% if field.is_hidden %}
                         {{ field }}
                     {% elif field == form.DELETE %}
-                        <div class="position-absolute top-0 start-100 translate-middle">
+                        <div class="col-md d-md-block d-grid align-self-center pt-2">
                             {% if forloop.parentloop.first and formset.total_form_count == 1 %}
                                 <button type="button" id="{{ form.prefix }}-DELETE" class="delete-row btn btn-outline-danger" disabled>
                                     <i class="bi bi-trash"></i>
