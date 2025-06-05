@@ -27,18 +27,28 @@ Create Store
     {% for field in form %}
         {{ field|as_crispy_field }}
     {% endfor %}
-    <div id="add-book-form-container">
+    <div id="add-book-formset-container">
         {% include "myapp/store/partials/add_book_formset.html" with formset=formset %}
     </div>
     <div>
-        <button type="button" class="btn btn-outline-primary my-2" id="add-book-form-button" hx-post="{% url 'myapp:add_book_form_view' %}" hx-target="#add-book-form-container" hx-swap="innerHTML">+Add More Items</button>
+        <button
+            type="button"
+            class="btn btn-outline-primary my-2"
+            id="add-book-formset-button"
+            hx-post="{% url 'myapp:add_book_formset_view' %}"
+            hx-target="#add-book-formset-container"
+            hx-swap="innerHTML"
+        >
+            +Add More Items
+        </button>
     </div>
-
     <button type="submit" class="btn btn-outline-primary my-2">Save</button>
     <a href="{% url 'myapp:store_list_view' %}" class="btn btn-outline-secondary my-2">Cancel</a>
 </form>
 
 <div id="modals-here"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
     class="modal fade"
     aria-labelledby="modalHereLabel"
     aria-hidden="true"
@@ -74,7 +84,7 @@ Create Store
             console.log('update_formset_count');
             const formsetCount = document.getElementById(`id_{{formset.prefix}}-TOTAL_FORMS`);
             const formsetMaxCount = document.getElementById(`id_{{formset.prefix}}-MAX_NUM_FORMS`);
-            const addBookFormButton = document.getElementById('add-book-form-button');
+            const addBookFormButton = document.getElementById('add-book-formset-button');
             
             if (formsetCount.value < formsetMaxCount.value) {
                 addBookFormButton.disabled = false;
