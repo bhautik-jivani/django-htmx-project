@@ -43,6 +43,7 @@ class StoreCreateView(CreateView):
         if form.is_valid() and formset.is_valid():
             try:
                 with transaction.atomic():
+                    # raise Exception("Test error")
                     # First save the store
                     self.object = form.save()
                     # Then set the store on the formset and save it
@@ -53,14 +54,11 @@ class StoreCreateView(CreateView):
             except Exception as e:
                 print(f"Error: {e}")
                 # messages.error(self.request, f'Error creating store: {str(e)}')
-                return self.form_invalid(form)
+                formset._non_form_errors = formset.non_form_errors() + [f'Error creating store: {str(e)}']
+                return self.render_to_response(context)
         else:
-            return self.form_invalid(form)
+            return self.render_to_response(context)
 
-    def form_invalid(self, form):
-        context = self.get_context_data()  # Debug print
-        # messages.error(self.request, 'Please correct the errors below.')
-        return self.render_to_response(context)
 
 class StoreUpdateView(UpdateView):
     pk_url_kwarg = 'pk'
@@ -92,16 +90,11 @@ class StoreUpdateView(UpdateView):
                 messages.success(self.request, 'Store updated successfully!')
                 return HttpResponseRedirect(self.get_success_url())
             except Exception as e:
-                print(f"Error: {e}")
-                # messages.error(self.request, f'Error creating store: {str(e)}')
-                return self.form_invalid(form)
+                # messages.error(self.request, f'Error updating store: {str(e)}')
+                formset._non_form_errors = formset.non_form_errors() + [f'Error updating store: {str(e)}']
+                return self.render_to_response(context)
         else:
-            return self.form_invalid(form)
-
-    def form_invalid(self, form):
-        context = self.get_context_data()  # Debug print
-        # messages.error(self.request, 'Please correct the errors below.')
-        return self.render_to_response(context)
+            return self.render_to_response(context)
 
 
 class AddBookFormView(View):
