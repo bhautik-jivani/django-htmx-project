@@ -43,7 +43,6 @@ class StoreCreateView(CreateView):
         if form.is_valid() and formset.is_valid():
             try:
                 with transaction.atomic():
-                    # raise Exception("Test error")
                     # First save the store
                     self.object = form.save()
                     # Then set the store on the formset and save it
