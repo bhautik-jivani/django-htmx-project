@@ -192,6 +192,11 @@ class AddBookFormView(CreateView):
             return super().dispatch(request, *args, **kwargs)
         return HttpResponseForbidden("<h1>Access Denied</h1>")
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['target_formset'] = self.request.GET.get('target_formset', '')
+        return context
+    
     def form_valid(self, form):
         context = self.get_context_data(form=form)
         try:

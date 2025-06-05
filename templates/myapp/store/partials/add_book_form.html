@@ -1,6 +1,6 @@
 {% load crispy_forms_tags %}
 
-<form hx-post="{% url 'myapp:add_book_form_view' %}" hx-target="#id_books" hx-swap="beforeend" novalidate>
+<form hx-post="{% url 'myapp:add_book_form_view' %}?target_formset={{target_formset}}" hx-target="#{{target_formset}}" hx-swap="beforeend" novalidate>
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             {% csrf_token %}
