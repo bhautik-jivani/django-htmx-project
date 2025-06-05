@@ -19,6 +19,7 @@ urlpatterns = [
 
     path('store/', views.StoreListView.as_view(), name='store_list_view'),
     path('store/create/', views.StoreCreateView.as_view(), name='store_create_view'),
+    path('store/update/<int:pk>/', views.StoreUpdateView.as_view(), name='store_update_view'),
 ]
 
 htmx_urlpatterns = [

@@ -8,16 +8,19 @@ Create Book
 {% block content %}
 <h1>Create Book</h1>
 
-{% if messages %}
-<div class="messages">
-    {% for message in messages %}
-    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-        {{ message }}
+{% for message in messages %}
+<div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endfor %}
+
+{% for form_error in form.non_field_errors %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ form_error }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    {% endfor %}
-</div>
-{% endif %}
+{% endfor %}
 
 <form action="{% url 'myapp:book_create_view' %}" method="post" novalidate>
     {% csrf_token %}
@@ -59,6 +62,8 @@ Create Book
 </form>
 
 <div id="modals-here"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
     class="modal fade"
     aria-labelledby="modalHereLabel"
     aria-hidden="true"
@@ -87,10 +92,7 @@ Create Book
             
             // Handle modal hidden
             modal.hide();
-
         });
-
-        
     });
 </script>
 {% endblock %}

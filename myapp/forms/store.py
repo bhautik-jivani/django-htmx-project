@@ -50,6 +50,3 @@ StoreBookFormSet = inlineformset_factory(
     validate_max=True,
     can_delete=True,
 )
-
-
-

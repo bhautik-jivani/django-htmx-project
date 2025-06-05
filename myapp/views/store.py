@@ -5,10 +5,11 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import HttpResponseForbidden, HttpResponseRedirect, HttpResponse
 from django.db import transaction
+from django.forms import inlineformset_factory
 
 # project imports
-from myapp.forms import StoreForm, StoreBookFormSet, BookForm, PersonForm, PublisherForm
-from myapp.models import Book, Person, Publisher, Store
+from myapp.forms import StoreForm, StoreBookFormSet, StoreBookForm, BookForm, PersonForm, PublisherForm
+from myapp.models import Book, Person, Publisher, Store, StoreBook
 
 
 # Create your views here.
@@ -29,14 +30,7 @@ class StoreCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        index = self.request.POST.get('index', 0)
-        try:
-            index = int(index)
-        except ValueError:
-            index = 0
-        context['index'] = index
         if self.request.POST:
-            print("self.request.POST", self.request.POST)
             context['formset'] = StoreBookFormSet(self.request.POST)
         else:
             context['formset'] = StoreBookFormSet()
@@ -45,7 +39,6 @@ class StoreCreateView(CreateView):
     def form_valid(self, form):
         context = self.get_context_data()
         formset = context['formset']
-        print(f"INSIDE:form_valid:formset.is_valid(): {formset.is_valid()}")
 
         if form.is_valid() and formset.is_valid():
             try:
@@ -60,78 +53,90 @@ class StoreCreateView(CreateView):
             except Exception as e:
                 print(f"Error: {e}")
                 # messages.error(self.request, f'Error creating store: {str(e)}')
-                return self.form_invalid(form)
+                formset._non_form_errors = formset.non_form_errors() + [f'Error creating store: {str(e)}']
+                return self.render_to_response(context)
         else:
-            return self.form_invalid(form)
+            return self.render_to_response(context)
 
-    def form_invalid(self, form):
-        context = self.get_context_data()  # Debug print
+
+class StoreUpdateView(UpdateView):
+    pk_url_kwarg = 'pk'
+    model = Store
+    form_class = StoreForm
+    template_name = 'myapp/store/update_form.html'
+    success_url = reverse_lazy('myapp:store_list_view')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['formset'] = StoreBookFormSet(self.request.POST, instance=self.object)
+        else:
+            context['formset'] = StoreBookFormSet(instance=self.object)
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
         formset = context['formset']
-        print(f"formset.errors: {formset.errors}")
-        print(f"INSIDE:form_invalid:formset.is_valid(): {formset.is_valid()}")
-        # messages.error(self.request, 'Please correct the errors below.')
-        return self.render_to_response(context)
 
-# class BookUpdateView(UpdateView):
-#     pk_url_kwarg = 'pk'
-#     model = Book
-#     form_class = BookForm
-#     # fields = ['first_name', 'last_name']
-#     template_name = 'myapp/book/update_form.html'
-#     success_url = reverse_lazy('myapp:book_list_view')
-
-#     # # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
-#     # def dispatch(self, request, *args, **kwargs):
-#     #     if request.htmx and request.htmx.request:
-#     #         return super().dispatch(request, *args, **kwargs)
-#     #     return HttpResponseForbidden("<h1>Access Denied</h1>")
-
-#     def form_valid(self, form):
-#         try:
-#             print("Form data:", form.cleaned_data)  # Debug print
-#             response = super().form_valid(form)
-#             print("Response:", response)  # Debug print
-#             messages.success(self.request, 'Book updated successfully!')
-#             return response
-#         except Exception as e:
-#             print("Error:", str(e))  # Debug print
-#             messages.error(self.request, f'Error creating book: {str(e)}')
-#             return self.form_invalid(form)
-
-#     def form_invalid(self, form):
-#         print("Form errors:", form.errors)  # Debug print
-#         messages.error(self.request, 'Please correct the errors below.')
-#         return super().form_invalid(form)
+        if form.is_valid() and formset.is_valid():
+            try:
+                with transaction.atomic():
+                    # First save the store
+                    form.save()
+                    # Then set the store on the formset and save it
+                    formset.instance = self.object
+                    formset.save()
+                messages.success(self.request, 'Store updated successfully!')
+                return HttpResponseRedirect(self.get_success_url())
+            except Exception as e:
+                # messages.error(self.request, f'Error updating store: {str(e)}')
+                formset._non_form_errors = formset.non_form_errors() + [f'Error updating store: {str(e)}']
+                return self.render_to_response(context)
+        else:
+            return self.render_to_response(context)
 
 
 class AddBookFormView(View):
-    # def get(self, request):
-    #     index = request.GET.get('index', 0)
-    #     try:
-    #         index = int(index)
-    #     except ValueError:
-    #         index = 0
-    #     formset = StoreBookFormSet()
-    #     form = formset.empty_form
-    #     form.prefix = f"{formset.prefix}-{index}"
-    #     response = render(request, 'myapp/store/add_book_form.html', {'form': form})
-    #     response['HX-Trigger-After-Swap'] = 'update_formset_count'
-    #     return response
+    # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
+    def dispatch(self, request, *args, **kwargs):
+        if request.htmx and request.htmx.request:
+            return super().dispatch(request, *args, **kwargs)
+        return HttpResponseForbidden("<h1>Access Denied</h1>")
 
-    def get(self, request):
-        index = request.GET.get('index', 0)
-        try:
-            index = int(index)
-        except ValueError:
-            index = 0
-        formset = StoreBookFormSet()
-        form = formset.empty_form
-        form.prefix = f"{formset.prefix}-{index}"
-        response = render(request, 'myapp/store/partials/add_book_form.html', {'form': form, 'index': index})
-        response['HX-Trigger-After-Swap'] = 'update_formset_item_url'
+    def post(self, request):
+        formset = StoreBookFormSet(request.POST)
+        initial_form_count = formset.initial_form_count()
+        inital_data = []
+        for form in formset.forms:
+            data = {}
+            for field in form:
+                if field.name != 'DELETE':
+                    data[field.name] = field.data
+            inital_data.append(data)
+        extra = len(inital_data)
+        StoreBookFormSet_Custom = inlineformset_factory(
+            Store,
+            StoreBook,
+            form=StoreBookForm,
+            extra=extra,
+            min_num=1,
+            max_num=3,
+            validate_min=True,
+            validate_max=True,
+            can_delete=True,
+        )
+        formset = StoreBookFormSet_Custom(initial=inital_data)
+        formset.management_form.initial["INITIAL_FORMS"] = initial_form_count
+        response = render(request, 'myapp/store/partials/add_book_formset.html', {'formset': formset})
+        response['HX-Trigger-After-Swap'] = 'update_formset_button'
         return response
 
 class RemoveBookFormView(View):
+    # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
+    def dispatch(self, request, *args, **kwargs):
+        if request.htmx and request.htmx.request:
+            return super().dispatch(request, *args, **kwargs)
+        return HttpResponseForbidden("<h1>Access Denied</h1>")
 
     def post(self, request):
         index = request.POST.get('index', 0)
@@ -139,9 +144,38 @@ class RemoveBookFormView(View):
             index = int(index)
         except ValueError:
             index = 0
-        print("RemoveBookFormView:request.POST", request.POST)
         formset = StoreBookFormSet(request.POST)
+        initial_form_count = formset.initial_form_count() - 1 if formset.initial_form_count() > 1 else 0
+        # Remove the form at the given index
+
+        form_obj = formset.forms[index]
+        id = form_obj.data.get(f"{formset.prefix}-{index}-id")
+        if id:
+            store_book_queryset = StoreBook.objects.filter(id=id)
+            store_book_queryset.delete()
         formset.forms.pop(index)
+
+        inital_data = []
+        for form in formset.forms:
+            data = {}
+            for field in form:
+                data[field.name] = field.data
+            inital_data.append(data)
+        
+        extra = len(inital_data) - 1 if len(inital_data) > 1 else 0
+        StoreBookFormSet_Custom = inlineformset_factory(
+            Store,
+            StoreBook,
+            form=StoreBookForm,
+            extra=extra,
+            min_num=1,
+            max_num=3,
+            validate_min=True,
+            validate_max=True,
+            can_delete=True,
+        )
+        formset = StoreBookFormSet_Custom(initial=inital_data)
+        formset.management_form.initial["INITIAL_FORMS"] = initial_form_count
         response = render(request, 'myapp/store/partials/add_book_formset.html', {'formset': formset})
-        # response['HX-Trigger-After-Swap'] = 'update_formset_item_url'
+        response['HX-Trigger-After-Swap'] = 'update_formset_button'
         return response
