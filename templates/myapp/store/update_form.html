@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+Update Store
+{% endblock %}
+
+{% block content %}
+<h1>Update Store</h1>
+
+{% for message in messages %}
+<div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endfor %}
+
+{% for form_error in form.non_field_errors %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ form_error }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endfor %}
+
+<form action="{% url 'myapp:store_update_view' object.id %}" method="post" novalidate>
+    {% csrf_token %}
+    {% for field in form %}
+        {{ field|as_crispy_field }}
+    {% endfor %}
+    <div id="add-book-form-container">
+        {% include "myapp/store/partials/add_book_formset.html" with formset=formset object=object %}
+    </div>
+    <div>
+        <button type="button" class="btn btn-outline-primary my-2" id="add-book-form-button" hx-post="{% url 'myapp:add_book_form_view' %}" hx-target="#add-book-form-container" hx-swap="innerHTML">+Add More Items</button>
+    </div>
+
+    <button type="submit" class="btn btn-outline-primary my-2">Save</button>
+    <a href="{% url 'myapp:store_list_view' %}" class="btn btn-outline-secondary my-2">Cancel</a>
+</form>
+
+<div id="modals-here"
+    class="modal fade"
+    aria-labelledby="modalHereLabel"
+    aria-hidden="true"
+    style="display: none"
+    tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content"></div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle modal closing
+        document.addEventListener('closemodal', function() {
+            const modalElement = document.getElementById('modals-here');
+            const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+            // const modal = new bootstrap.Modal(modalElement);
+
+            console.log(modal._isShown);
+            // modalElement.setAttribute('aria-hidden', 'true');
+            // modalElement.removeAttribute('aria-modal');
+            // modalElement.removeAttribute('tabindex');
+            
+            // Handle modal hidden
+            modal.hide();
+        });
+
+        document.addEventListener('update_formset_button', function() {
+            console.log('update_formset_count');
+            const formsetCount = document.getElementById(`id_{{formset.prefix}}-TOTAL_FORMS`);
+            const formsetMaxCount = document.getElementById(`id_{{formset.prefix}}-MAX_NUM_FORMS`);
+            const addBookFormButton = document.getElementById('add-book-form-button');
+            
+            if (formsetCount.value < formsetMaxCount.value) {
+                addBookFormButton.disabled = false;
+            } else {
+                addBookFormButton.disabled = true;
+            }
+        });
+
+        // Dispatch the custom event on DOMContentLoaded
+        const event = new Event('update_formset_button');
+        document.dispatchEvent(event);
+    });
+</script>
+{% endblock %}

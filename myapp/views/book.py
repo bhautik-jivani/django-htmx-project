@@ -1,14 +1,13 @@
 # django library imports
 from django.shortcuts import render
 from django.views.generic import TemplateView, ListView, UpdateView, CreateView, View
-from django.views.generic.list import MultipleObjectMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponse
 
 # project imports
-from myapp.forms import BookForm, PersonFormSet, PersonForm
-from myapp.models import Book, Person
+from myapp.forms import BookForm, PersonForm, PublisherForm
+from myapp.models import Book, Person, Publisher
 
 
 # Create your views here.
@@ -34,42 +33,16 @@ class BookCreateView(CreateView):
     #         return super().dispatch(request, *args, **kwargs)
     #     return HttpResponseForbidden("<h1>Access Denied</h1>")
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.request.POST:
-            context['person_formset'] = PersonFormSet(self.request.POST, queryset=Person.objects.none())
-        else:
-            context['person_formset'] = PersonFormSet(queryset=Person.objects.none())
-        return context
-
-
-
-
     def form_valid(self, form):
-        context = self.get_context_data()
+        context = self.get_context_data(form=form)
         try:
-            print("Form data:", form.cleaned_data)  # Debug print
-            person_formset = context['person_formset']
             response = super().form_valid(form)
-            print("Response:", response)  # Debug print
-            if person_formset.is_valid():
-                person_formset.instance = self.object
-                person_formset.save()
-            else:
-                self.object.delete()
-                messages.error(self.request, 'Person creation failed!')
-                return self.form_invalid(form)
-            messages.success(self.request, 'Person created successfully!')
+            messages.success(self.request, 'Book created successfully!')
             return response
         except Exception as e:
-            print("Error:", str(e))  # Debug print
-            messages.error(self.request, f'Error creating person: {str(e)}')
-            return self.form_invalid(form)
-
-    def form_invalid(self, form):
-        print("Form errors:", form.errors)  # Debug print
-        messages.error(self.request, 'Please correct the errors below.')
-        return super().form_invalid(form)
+            # messages.error(self.request, f'Error creating book: {str(e)}')
+            form.add_error(None, f'Error creating book: {str(e)}')
+            return self.render_to_response(context)
 
 class BookUpdateView(UpdateView):
     pk_url_kwarg = 'pk'
@@ -86,22 +59,15 @@ class BookUpdateView(UpdateView):
     #     return HttpResponseForbidden("<h1>Access Denied</h1>")
 
     def form_valid(self, form):
+        context = self.get_context_data(form=form)
         try:
-            print("Form data:", form.cleaned_data)  # Debug print
             response = super().form_valid(form)
-            print("Response:", response)  # Debug print
-            messages.success(self.request, 'Publisher created successfully!')
+            messages.success(self.request, 'Book updated successfully!')
             return response
         except Exception as e:
-            print("Error:", str(e))  # Debug print
-            messages.error(self.request, f'Error creating publisher: {str(e)}')
-            return self.form_invalid(form)
-
-    def form_invalid(self, form):
-        print("Form errors:", form.errors)  # Debug print
-        messages.error(self.request, 'Please correct the errors below.')
-        return super().form_invalid(form)
-
+            # messages.error(self.request, f'Error updating book: {str(e)}')
+            form.add_error(None, f'Error updating book: {str(e)}')
+            return self.render_to_response(context)
 
 class AddPersonFormView(CreateView):
     model = Person
@@ -115,23 +81,72 @@ class AddPersonFormView(CreateView):
         return HttpResponseForbidden("<h1>Access Denied</h1>")
     
     def form_valid(self, form):
+        context = self.get_context_data(form=form)
         try:
             # Save the form but don't redirect
             self.object = form.save()
-            messages.success(self.request, 'Person created successfully!')
+            # messages.success(self.request, 'Person created successfully!')
             
-            # Only pass the newly created person
-            context = self.get_context_data()
-            context['object'] = self.object
-            context['form'] = self.form_class()
-            return self.render_to_response(context)
+            # Add option tag directly as OOB swap
+            option_tag = f'<option value="{self.object.id}" selected>{self.object}</option>'
+            response = HttpResponse(option_tag)
+            # response['HX-Trigger'] = 'closemodal'
+            response['HX-Trigger-After-Swap'] = 'closemodal'
+            return response
         except Exception as e:
-            messages.error(self.request, f'Error creating person: {str(e)}')
-            return self.form_invalid(form)
+            # messages.error(self.request, f'Error creating person: {str(e)}')
+            form.add_error(None, f'Error creating person: {str(e)}')
+            print(f"form.errors: {form.errors}")
+            response = self.render_to_response(context)
+            response['HX-Retarget'] = '#modals-here'
+            response['HX-Reswap'] = 'innerHTML'
+            return response
 
     def form_invalid(self, form):
-        messages.error(self.request, 'Please correct the errors below.')
-        return super().form_invalid(form)
+        # messages.error(self.request, 'Please correct the errors below.')
+        context = self.get_context_data(form=form)
+        response = self.render_to_response(context)
+        response['HX-Retarget'] = '#modals-here'
+        response['HX-Reswap'] = 'innerHTML'
+        # response['HX-Trigger-After-Swap'] = 'fail'
+        return response
 
+class AddPublisherFormView(CreateView):
+    model = Publisher
+    form_class = PublisherForm
+    template_name = 'myapp/book/partials/publisher_form.html'
 
+    # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
+    def dispatch(self, request, *args, **kwargs):
+        if request.htmx and request.htmx.request:
+            return super().dispatch(request, *args, **kwargs)
+        return HttpResponseForbidden("<h1>Access Denied</h1>")
+    
+    def form_valid(self, form):
+        context = self.get_context_data(form=form)
+        try:
+            # Save the form but don't redirect
+            self.object = form.save()
+            # messages.success(self.request, 'Publisher created successfully!')
+            
+            # Add option tag directly as OOB swap
+            option_tag = f'<option value="{self.object.id}" selected>{self.object.name}</option>'
+            response = HttpResponse(option_tag)
+            response['HX-Trigger'] = 'closemodal'
+            return response
+        except Exception as e:
+            # messages.error(self.request, f'Error creating publisher: {str(e)}')
+            form.add_error(None, f'Error creating publisher: {str(e)}')
+            response = self.render_to_response(context)
+            response['HX-Retarget'] = '#modals-here'
+            response['HX-Reswap'] = 'innerHTML'
+            return response
+
+    def form_invalid(self, form):
+        # messages.error(self.request, 'Please correct the errors below.')
+        context = self.get_context_data(form=form)
+        response = self.render_to_response(context)
+        response['HX-Retarget'] = '#modals-here'
+        response['HX-Reswap'] = 'innerHTML'
+        return response
 

@@ -1,11 +1,11 @@
 {% load crispy_forms_tags %}
 
-<form hx-post="{% url 'myapp:add_person_form_view' %}" hx-target="#id_persons" hx-swap="beforeend" novalidate>
+<form hx-post="{% url 'myapp:add_publisher_form_view' %}" hx-target="#id_publisher" hx-swap="beforeend" novalidate>
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             {% csrf_token %}
             <div class="modal-header">
-                <h5 class="modal-title">Add Person</h5>
+                <h5 class="modal-title">Add Publisher</h5>
             </div>
             <div class="modal-body">
                 {% for message in messages %}

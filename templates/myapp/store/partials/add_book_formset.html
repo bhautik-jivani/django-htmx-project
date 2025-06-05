@@ -1,0 +1,39 @@
+{% load crispy_forms_tags %}
+
+{{ formset.management_form }}
+<div>
+
+    {% for formset_error in formset.non_form_errors %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ formset_error }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% for form in formset %}
+        <div class="mb-3 card">
+            <div class="card-body row">
+                {% for field in form %}
+                    {% if field.is_hidden %}
+                        {{ field }}
+                    {% elif field == form.DELETE %}
+                        <div class="col-md d-md-block d-grid align-self-center pt-2">
+                            {% if forloop.parentloop.first and formset.total_form_count == 1 %}
+                                <button type="button" id="{{ form.prefix }}-DELETE" class="delete-row btn btn-outline-danger" disabled>
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            {% else %}
+                                <button type="button" id="{{ form.prefix }}-DELETE" class="delete-row btn btn-outline-danger" hx-post="{% url 'myapp:remove_book_form_view' %}" hx-vals="js:{'index': '{{forloop.parentloop.counter0}}', 'object_id': '{{object.id}}'}" hx-confirm="Are you sure you wish to delete this row?" hx-target="#add-book-form-container" hx-swap="innerHTML">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="col-md-3">
+                            {{ field|as_crispy_field }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+</div>

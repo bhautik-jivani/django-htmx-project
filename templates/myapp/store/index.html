@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
 {% block title %}
-Book List
+Store List
 {% endblock %}
 
 {% block content %}
-<h1>Book List</h1>
+<h1>Store List</h1>
 
 {% if messages %}
 <div class="messages">
@@ -19,30 +19,22 @@ Book List
 {% endif %}
 
 <div>
-    <a href="{% url 'myapp:book_create_view' %}" class="btn btn-outline-primary">Add Book</a>
+    <a href="{% url 'myapp:store_create_view' %}" class="btn btn-outline-primary">Add Store</a>
     <table class="table" >
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Pages</th>
-                <th>Price</th>
-                <th>Rating</th>
-                <th>Publisher</th>
-                <th>Pubdate</th>
+                <th>Books</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            {% for book in object_list %}
+            {% for store in object_list %}
             <tr>
-                <td>{{ book.name }}</td>
-                <td>{{ book.pages }}</td>
-                <td>{{ book.price }}</td>
-                <td>{{ book.rating }}</td>
-                <td>{{ book.publisher.name }}</td>
-                <td>{{ book.pubdate }}</td>
+                <td>{{ store.name }}</td>
+                <td>{{ store.storebook_set.count }}</td>
                 <td>
-                    <a href="{% url 'myapp:book_update_view' book.id %}" class="btn btn-outline-primary">Edit</a>
+                    <a href="{% url 'myapp:store_update_view' store.id %}" class="btn btn-outline-primary">Edit</a>
                 </td>
             </tr>
             {% endfor %}
