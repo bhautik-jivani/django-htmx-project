@@ -44,9 +44,9 @@ class StoreCreateView(CreateView):
             try:
                 with transaction.atomic():
                     # First save the store
-                    store_obj = form.save()
+                    self.object = form.save()
                     # Then set the store on the formset and save it
-                    formset.instance = store_obj
+                    formset.instance = self.object
                     formset.save()
                 messages.success(self.request, 'Store created successfully!')
                 return HttpResponseRedirect(self.get_success_url())
