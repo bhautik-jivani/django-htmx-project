@@ -59,7 +59,6 @@ class StoreCreateView(CreateView):
 
     def form_invalid(self, form):
         context = self.get_context_data()  # Debug print
-        formset = context['formset']
         # messages.error(self.request, 'Please correct the errors below.')
         return self.render_to_response(context)
 
@@ -102,7 +101,6 @@ class StoreUpdateView(UpdateView):
 
     def form_invalid(self, form):
         context = self.get_context_data()  # Debug print
-        formset = context['formset']
         # messages.error(self.request, 'Please correct the errors below.')
         return self.render_to_response(context)
 
