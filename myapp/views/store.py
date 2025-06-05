@@ -44,9 +44,9 @@ class StoreCreateView(CreateView):
             try:
                 with transaction.atomic():
                     # First save the store
-                    self.object = form.save()
+                    store_obj = form.save()
                     # Then set the store on the formset and save it
-                    formset.instance = self.object
+                    formset.instance = store_obj
                     formset.save()
                 messages.success(self.request, 'Store created successfully!')
                 return HttpResponseRedirect(self.get_success_url())
@@ -87,7 +87,7 @@ class StoreUpdateView(UpdateView):
             try:
                 with transaction.atomic():
                     # First save the store
-                    self.object = form.save()
+                    form.save()
                     # Then set the store on the formset and save it
                     formset.instance = self.object
                     formset.save()
@@ -123,6 +123,7 @@ class AddBookFormView(View):
                 if field.name != 'DELETE':
                     data[field.name] = field.data
             inital_data.append(data)
+        print(f"inital_data: {inital_data}")
         extra = len(inital_data)
         StoreBookFormSet_Custom = inlineformset_factory(
             Store,
@@ -155,6 +156,13 @@ class RemoveBookFormView(View):
             index = 0
         formset = StoreBookFormSet(request.POST)
         # Remove the form at the given index
+
+        form_obj = formset.forms[index]
+        id = form_obj.data.get(f"{formset.prefix}-{index}-id")
+        print(f"id: {id}")
+        if id:
+            store_book_queryset = StoreBook.objects.filter(id=id)
+            store_book_queryset.delete()
         formset.forms.pop(index)
 
         inital_data = []
