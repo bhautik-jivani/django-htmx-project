@@ -16,11 +16,83 @@ Update Book
 </div>
 {% endfor %}
 
+{% for form_error in form.non_field_errors %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ form_error }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endfor %}
+
 
 <form action="{% url 'myapp:book_update_view' book.id %}" method="post" novalidate>
     {% csrf_token %}
-    {{ form|crispy }}
+
+    {% for field in form %}
+        {% if field.label == 'Persons' %}
+            {{ field|as_crispy_field }}
+            <button
+                type="button"
+                class="btn btn-outline-secondary mb-2"
+                hx-get="{% url 'myapp:add_person_form_view' %}"
+                hx-target="#modals-here"
+                hx-trigger="click"
+                data-bs-toggle="modal"
+                data-bs-target="#modals-here"
+            >
+                + Add Person
+            </button>
+        {% elif field.label == 'Publisher' %}
+            {{ field|as_crispy_field }}
+            <button
+                type="button"
+                class="btn btn-outline-secondary mb-2"
+                hx-get="{% url 'myapp:add_publisher_form_view' %}"
+                hx-target="#modals-here"
+                hx-trigger="click"
+                data-bs-toggle="modal"
+                data-bs-target="#modals-here"
+            >
+                + Add Publisher
+            </button>
+        {% else %}
+            {{ field|as_crispy_field }}
+        {% endif %}
+    {% endfor %}
     <button type="submit" class="btn btn-outline-primary my-2">Save</button>
     <a href="{% url 'myapp:book_list_view' %}" class="btn btn-outline-secondary my-2">Cancel</a>
 </form>
+
+<div id="modals-here"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
+    class="modal fade"
+    aria-labelledby="modalHereLabel"
+    aria-hidden="true"
+    style="display: none"
+    tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalElement = document.getElementById('modals-here');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        // const modal = new bootstrap.Modal(modalElement);
+        
+        // Handle modal closing
+        document.addEventListener('closemodal', function() {
+            console.log(modal._isShown);
+            // modalElement.setAttribute('aria-hidden', 'true');
+            // modalElement.removeAttribute('aria-modal');
+            // modalElement.removeAttribute('tabindex');
+            
+            // Handle modal hidden
+            modal.hide();
+        });
+    });
+</script>
 {% endblock %}
