@@ -38,7 +38,7 @@
                                     <button
                                         type="button"
                                         class="btn btn-outline-primary"
-                                        hx-get="{% url 'myapp:add_book_form_view' %}"
+                                        hx-get="{% url 'myapp:add_book_form_view' %}?target_formset=id_{{form.prefix}}-book"
                                         hx-target="#modals-here"
                                         hx-trigger="click"
                                         data-bs-toggle="modal"
