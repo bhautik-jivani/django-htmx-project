@@ -18,6 +18,36 @@
     <!-- jQuery -->
     <!-- <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script> -->
     
+    <style>
+        /* .htmx-indicator {
+            display: none;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .htmx-request .htmx-indicator,
+        .htmx-request.htmx-indicator {
+            display: block;
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        body.htmx-request {
+            overflow: hidden;
+        } */
+        .htmx-indicator{
+            display:none;
+        }
+        .htmx-request .htmx-indicator{
+            display:inline;
+        }
+        .htmx-request.htmx-indicator{
+            display:inline;
+        }
+
+    </style>
+
     {% block styles %}{% endblock %}
 
     <!-- Add htmx and the django-htmx extension script to the pages with a template tag, available for Django templates and Jinja2. -->
@@ -31,6 +61,20 @@
     <div id="content" class="mt-2 pt-5">
         {% block content %}
         {% endblock %}
+    </div>
+    
+    <!-- Spinner shown during HTMX requests -->
+    <!-- Backdrop shown during HTMX requests -->
+    <div id="loading-spinner"
+        class="htmx-indicator position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50"
+        style="z-index: 1050;">
+        <div
+            class="position-fixed top-50 start-50 translate-middle"
+            style="z-index: 1060;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
     </div>
 
     {% block scripts %}
