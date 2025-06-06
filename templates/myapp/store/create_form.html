@@ -38,11 +38,13 @@ Create Store
             hx-post="{% url 'myapp:add_book_formset_view' %}"
             hx-target="#add-book-formset-container"
             hx-swap="innerHTML"
+            hx-disabled-elt="this"
+            hx-indicator="#loading-spinner"
         >
             +Add More Items
         </button>
     </div>
-    <button type="submit" class="btn btn-outline-primary my-2">Save</button>
+    <button id="save-button" type="submit" class="btn btn-outline-primary my-2">Save</button>
     <a href="{% url 'myapp:store_list_view' %}" class="btn btn-outline-secondary my-2">Cancel</a>
 </form>
 
