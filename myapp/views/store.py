@@ -11,6 +11,9 @@ from django.forms import inlineformset_factory
 from myapp.forms import StoreForm, StoreBookFormSet, StoreBookForm, BookForm, PersonForm, PublisherForm
 from myapp.models import Book, Person, Publisher, Store, StoreBook
 
+# third-party imports
+import json
+
 
 # Create your views here.
 class StoreListView(ListView):
@@ -208,6 +211,9 @@ class AddBookFormView(CreateView):
             option_tag = f'<option value="{self.object.id}" selected>{self.object.name}</option>'
             response = HttpResponse(option_tag)
             response['HX-Trigger'] = 'closemodal'
+            response['HX-Trigger-After-Swap'] = json.dumps({
+                'add_book_option_tag': {'option_tag': option_tag}
+            })
             return response
         except Exception as e:
             # messages.error(self.request, f'Error creating publisher: {str(e)}')

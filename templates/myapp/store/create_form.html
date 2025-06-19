@@ -38,7 +38,6 @@ Create Store
             hx-post="{% url 'myapp:add_book_formset_view' %}"
             hx-target="#add-book-formset-container"
             hx-swap="innerHTML"
-            hx-disabled-elt="this"
             hx-indicator="#loading-spinner"
         >
             +Add More Items
@@ -81,6 +80,32 @@ Create Store
             // Handle modal hidden
             modal.hide();
         });
+
+        // Handle add_book_option_tag custom event
+        document.body.addEventListener('add_book_option_tag', function(event) {
+            let optionHTML = event.detail.option_tag;
+            console.log("optionHTML",optionHTML);
+
+            // Remove 'selected' attribute from the option tag
+            optionHTML = optionHTML.replace(/\s+selected(=["']?[^"'\s>]*)?/i, '');
+            
+
+            // Append optionHTML directly to all relevant <select> elements
+            document.querySelectorAll('select[id^="id_storebook_set-"][id$="-book"]').forEach(select => {
+                // Skip if option with same value already exists
+                if (!select.querySelector(`option[value="${getOptionValue(optionHTML)}"]`)) {
+
+                    select.insertAdjacentHTML('beforeend', optionHTML);
+                }
+            });
+
+            // Helper function to extract value from option tag string
+            function getOptionValue(optionHTML) {
+                const match = optionHTML.match(/value=["']?([^"'>\s]+)/i);
+                return match ? match[1] : '';
+            }
+        });
+
 
         document.addEventListener('update_formset_button', function() {
             console.log('update_formset_count');
