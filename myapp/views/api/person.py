@@ -72,6 +72,5 @@ class PersonAPIView(View):
             "recordsFiltered": total_records,
             "data": data
         }
-        print("response", response)
 
         return JsonResponse(response)
