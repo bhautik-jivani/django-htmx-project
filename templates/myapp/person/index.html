@@ -90,13 +90,13 @@ Person List
                     previous: "<i class='mdi mdi-chevron-left'></i>", 
                     next: "<i class='mdi mdi-chevron-right'></i>"
                 },
-                // info: "Showing jobcards _START_ to _END_ of _TOTAL_",
+                // info: "Showing persons _START_ to _END_ of _TOTAL_",
                 lengthMenu: 'Display <select class="form-select form-select-sm mx-1">' +
                             '<option value="5">5</option>' +
                             '<option value="10">10</option>' +
                             '<option value="20">20</option>' +
                             '<option value="50">50</option>' +
-                            "</select> jobcards",
+                            "</select> persons",
             },
             pageLength: storedPageLength,
             displayStart: storedPageStart,
@@ -169,7 +169,7 @@ Person List
                 localStorage.setItem("person_datatable_page_length", storedPageLength);
                 
                 // Update info display manually to prevent "6 to 5 of 5" issue
-                $(".dataTables_info").text(`Showing jobcards ${storedPageStart + 1} to ${Math.min(info.end, totalRecords)} of ${totalRecords}`);
+                $(".dataTables_info").text(`Showing persons ${storedPageStart + 1} to ${Math.min(info.end, totalRecords)} of ${totalRecords}`);
             },
         });
         
