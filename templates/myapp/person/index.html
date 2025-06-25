@@ -149,24 +149,24 @@ Person List
                     "orderSequence": ["asc", "desc"] // ONLY allow asc/desc
                 }
             ],
-            drawCallback: function () {
+            // drawCallback: function () {
                 
-                let info = table.page.info();
-                let totalRecords = info.recordsDisplay;
-                console.log("totalRecords", totalRecords);
+            //     let info = table.page.info();
+            //     let totalRecords = info.recordsDisplay;
+            //     console.log("totalRecords", totalRecords);
                 
                 
-                // If last record on the last page is deleted, move to the previous page
-                if (storedPageStart >= totalRecords) {
-                    storedPageStart = Math.max(0, storedPageStart - storedPageLength);
-                }
+            //     // If last record on the last page is deleted, move to the previous page
+            //     if (storedPageStart >= totalRecords) {
+            //         storedPageStart = Math.max(0, storedPageStart - storedPageLength);
+            //     }
                 
-                localStorage.setItem("person_datatable_page_start", storedPageStart);
-                localStorage.setItem("person_datatable_page_length", storedPageLength);
+            //     localStorage.setItem("person_datatable_page_start", storedPageStart);
+            //     localStorage.setItem("person_datatable_page_length", storedPageLength);
                 
-                // Update info display manually to prevent "6 to 5 of 5" issue
-                $(".dataTables_info").text(`Showing persons ${storedPageStart + 1} to ${Math.min(info.end, totalRecords)} of ${totalRecords}`);
-            },
+            //     // Update info display manually to prevent "6 to 5 of 5" issue
+            //     $(".dataTables_info").text(`Showing persons ${storedPageStart + 1} to ${Math.min(info.end, totalRecords)} of ${totalRecords}`);
+            // },
         });
         
     });
