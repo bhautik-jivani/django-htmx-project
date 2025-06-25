@@ -22,10 +22,10 @@ class PersonAPIView(View):
 
         # Mapping DataTables column index to model field names
         column_mapping = {
-            1: "id",
-            2: "first_name",
-            3: "last_name",
-            4: "role",
+            0: "id",
+            1: "first_name",
+            2: "last_name",
+            3: "role_name",
         }
 
         # Default sorting column
@@ -44,7 +44,8 @@ class PersonAPIView(View):
             person_queryset = person_queryset.filter(
                 Q(id__icontains=search_query) | 
                 Q(first_name__icontains=search_query) | 
-                Q(last_name__icontains=search_query)
+                Q(last_name__icontains=search_query) |
+                Q(role__icontains=search_query)
             )
 
         total_records = person_queryset.count()  # Total records before filtering
@@ -57,14 +58,15 @@ class PersonAPIView(View):
         page_number = (start // length) + 1  # Convert offset to page number
         page_obj = paginator.get_page(page_number)
 
-        data = list(
-            page_obj.object_list.values(
-                "id",
-                "first_name",
-                "last_name",
-                "role",
-            )
-        )
+        data = [
+            {
+                "id": person.id,
+                "first_name": person.first_name,
+                "last_name": person.last_name,
+                "role_name": person.get_role_display(),
+            }
+            for person in page_obj.object_list
+        ]
 
         response = {
             "draw": draw,

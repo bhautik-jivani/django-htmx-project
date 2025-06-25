@@ -7,6 +7,18 @@ Person List
 
 {% block styles %}
 <link href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css" rel="stylesheet" type="text/css" />
+<link href="https://cdn.datatables.net/2.3.2/css/dataTables.bootstrap5.css" rel="stylesheet" type="text/css" />
+
+<style>
+.dt-container .dt-paging .dt-paging-button {
+    padding: 0 !important;
+    margin-left: 0 !important;
+}
+.dt-container .dt-paging .dt-paging-button:hover {
+    border: none !important;
+    background: none !important;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -23,12 +35,11 @@ Person List
 </div>
 {% endif %}
 
-<div>
+<div class="mb-2">
     <a href="{% url 'myapp:person_create_view' %}" class="btn btn-outline-primary">Add Person</a>
     <table class="table table-hover" id="person-datatable">
         <thead>
             <tr>
-                <th></th>
                 <th>ID</th>
                 <th>First Name</th>
                 <th>Last Name</th>
@@ -46,6 +57,7 @@ Person List
 
 <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
 <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.3.2/js/dataTables.bootstrap5.js"></script>
 
 <script>
     $(document).ready(function () {
@@ -86,10 +98,10 @@ Person List
                 // },
             },
             language: {
-                paginate: {
-                    previous: "<i class='mdi mdi-chevron-left'></i>", 
-                    next: "<i class='mdi mdi-chevron-right'></i>"
-                },
+                // paginate: {
+                //     previous: "<i class='mdi mdi-chevron-left'></i>", 
+                //     next: "<i class='mdi mdi-chevron-right'></i>"
+                // },
                 // info: "Showing persons _START_ to _END_ of _TOTAL_",
                 lengthMenu: 'Display <select class="form-select form-select-sm mx-1">' +
                             '<option value="5">5</option>' +
@@ -101,12 +113,6 @@ Person List
             pageLength: storedPageLength,
             displayStart: storedPageStart,
             columns: [
-                // { 
-                //     data: null,
-                //     orderable: false,
-                //     render: () => '<input type="checkbox" class="dt-checkboxes">'
-                // },
-                {data: null, orderable: false, searchable: false, render: DataTable.render.select()},
                 { 
                     data: "id", render: (data, type, row) => {
                         let detailUri = `{% url 'myapp:person_update_view' '0' %}`.replace('0', row.id);
@@ -115,7 +121,7 @@ Person List
                 },
                 { data: "first_name" },
                 { data: "last_name" },
-                { data: "role" },
+                { data: "role_name" },
                 { 
                     data: null,
                     orderable: false,
@@ -127,26 +133,16 @@ Person List
                         let editUri = `{% url 'myapp:person_update_view' '0' %}`.replace("0", row.id);
                         
                         return `<div class="btn-group">
-                                    <a type="button" class="btn btn-sm btn-soft-primary" href="${editUri}">
-                                        <i class="ri-pencil-fill font-16 me-1"></i> Edit
+                                    <a type="button" class="btn btn-sm btn-outline-primary" href="${editUri}">
+                                        <i class="bi bi-pencil font-16 me-1"></i> Edit
                                     </a>
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-soft-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><span class="caret"></span> </button>
-                                        <div class="dropdown-menu">
-                                            
-                                            
-                                            <a class="dropdown-item" href="#">
-                                                <i class="ri-download-2-line font-16 me-1"></i>
-                                                Export as PDF
-                                            </a>
-                                        </div>
-                                    </div>
                                 </div>`;
                     } 
                 },  // Actions column
             ],
-            select: { style: "multi" },
-            order: [[1, "desc"]],
+            // select: { style: "multi" },
+            order: [[0, "desc"]],
+            stateSave: true,
             "columnDefs": [
                 {
                     "targets": '_all',
@@ -154,12 +150,6 @@ Person List
                 }
             ],
             drawCallback: function () {
-                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
-                $(".dataTables_wrapper .row .col-md-6").each(function () {
-                    $(this).addClass("col-sm-6").removeClass("col-sm-12 col-md-6");
-                });
-                $(".dataTables_wrapper .dataTables_filter").addClass("pt-1 me-1");
-                $(".dataTables_wrapper .dataTables_length").addClass("pt-1");
                 
                 let info = table.page.info();
                 let totalRecords = info.recordsDisplay;
