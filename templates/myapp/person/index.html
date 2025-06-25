@@ -71,8 +71,8 @@ Person List
                         // start: d.start,  // DataTables handles pagination
                         // length: d.length,  // Number of records per page
                         search: d.search.value || "",  // Correct search field
-                        order_column: d.order[0].column,  // Send order column index
-                        order_dir: d.order[0].dir  // Send order direction (asc/desc)
+                        order_column: d.order.length > 0 ? d.order[0].column: 1,  // Send order column index
+                        order_dir: d.order.length > 0 ? d.order[0].dir: "desc"  // Send order direction (asc/desc)
                     };
                 },
                 // dataFilter: function (data) {
@@ -147,6 +147,12 @@ Person List
             ],
             select: { style: "multi" },
             order: [[1, "desc"]],
+            "columnDefs": [
+                {
+                    "targets": '_all',
+                    "orderSequence": ["asc", "desc"] // ONLY allow asc/desc
+                }
+            ],
             drawCallback: function () {
                 $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
                 $(".dataTables_wrapper .row .col-md-6").each(function () {
