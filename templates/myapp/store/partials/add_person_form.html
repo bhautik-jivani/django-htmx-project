@@ -1,0 +1,35 @@
+{% load crispy_forms_tags %}
+
+<form hx-post="{% url 'myapp:store_add_person_form_view' %}?target_formset={{target_formset}}" hx-target="#id_persons" hx-swap="beforeend" novalidate>
+    <div class="offcanvas offcanvas-end show" tabindex="-1" id="offcanvas" data-bs-backdrop="static" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header border-bottom">
+          <h5 class="offcanvas-title" id="offcanvasRightLabel">Add Person</h5>
+          <button type="button" class="btn-close" hx-on:click="document.getElementById('offcanvas-child-1-here').innerHTML = '';" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body text-start">
+            {% csrf_token %}
+            
+                {% for message in messages %}
+                <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+                {% for form_error in form.non_field_errors %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ form_error }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                
+                {% for field in form %}
+                    {{ field|as_crispy_field }}
+                {% endfor %}
+            
+            </div>
+            <div class="offcanvas-footer p-3 border-top">
+                <button type="button" id="close-modal" class="btn btn-secondary" hx-on:click="document.getElementById('offcanvas-child-1-here').innerHTML = '';">Close</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+    </div>
+</form>

@@ -1,34 +1,36 @@
 {% load crispy_forms_tags %}
 
 <form hx-post="{% url 'myapp:add_publisher_form_view' %}" hx-target="#id_publisher" hx-swap="beforeend" novalidate>
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+    <div class="offcanvas offcanvas-end show" tabindex="-1" id="offcanvas" data-bs-backdrop="static" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header border-bottom">
+          <h5 class="offcanvas-title" id="offcanvasRightLabel">Add Publisher</h5>
+          <button type="button" class="btn-close" hx-on:click="document.getElementById('offcanvas-here').innerHTML = '';document.body.style.overflow = '';document.body.style.paddingRight = '';" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body text-start">
             {% csrf_token %}
-            <div class="modal-header">
-                <h5 class="modal-title">Add Publisher</h5>
+            
+            {% for message in messages %}
+            <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                {% for message in messages %}
-                <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
+            {% endfor %}
+            {% for form_error in form.non_field_errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ form_error }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                {% endfor %}
-                {% for form_error in form.non_field_errors %}
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        {{ form_error }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-                
-                {% for field in form %}
-                    {{ field|as_crispy_field }}
-                {% endfor %}
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="close-modal" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Save</button>
-            </div>
+            {% endfor %}
+            
+            {% for field in form %}
+                {{ field|as_crispy_field }}
+            {% endfor %}
+        </div>
+        <div class="offcanvas-footer p-3 border-top">
+            <button type="button" id="close-modal" class="btn btn-secondary" hx-on:click="document.getElementById('offcanvas-here').innerHTML = '';document.body.style.overflow = '';document.body.style.paddingRight = '';">Close</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
         </div>
     </div>
 </form>
+
+<div class="offcanvas-backdrop fade show"></div>

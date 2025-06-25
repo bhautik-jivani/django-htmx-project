@@ -184,16 +184,16 @@ class RemoveBookFormsetView(View):
         return response
     
 
-class AddBookFormView(CreateView):
+class StoreAddBookFormView(CreateView):
     model = Book
     form_class = BookForm
     template_name = 'myapp/store/partials/add_book_form.html'
 
-    # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
-    def dispatch(self, request, *args, **kwargs):
-        if request.htmx and request.htmx.request:
-            return super().dispatch(request, *args, **kwargs)
-        return HttpResponseForbidden("<h1>Access Denied</h1>")
+    # # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
+    # def dispatch(self, request, *args, **kwargs):
+    #     if request.htmx and request.htmx.request:
+    #         return super().dispatch(request, *args, **kwargs)
+    #     return HttpResponseForbidden("<h1>Access Denied</h1>")
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -210,16 +210,18 @@ class AddBookFormView(CreateView):
             # Add option tag directly as OOB swap
             option_tag = f'<option value="{self.object.id}" selected>{self.object.name}</option>'
             response = HttpResponse(option_tag)
-            response['HX-Trigger'] = 'closemodal'
+            response['HX-Trigger'] = json.dumps({
+                "close_offcanvas": {"element_id": "offcanvas-here"},
+            })
             response['HX-Trigger-After-Swap'] = json.dumps({
-                'add_book_option_tag': {'option_tag': option_tag}
+                'add_book_option_tag': {'option_tag': option_tag,}
             })
             return response
         except Exception as e:
             # messages.error(self.request, f'Error creating publisher: {str(e)}')
             form.add_error(None, f'Error creating publisher: {str(e)}')
             response = self.render_to_response(context)
-            response['HX-Retarget'] = '#modals-here'
+            response['HX-Retarget'] = '#offcanvas-here'
             response['HX-Reswap'] = 'innerHTML'
             return response
 
@@ -227,6 +229,100 @@ class AddBookFormView(CreateView):
         # messages.error(self.request, 'Please correct the errors below.')
         context = self.get_context_data(form=form)
         response = self.render_to_response(context)
-        response['HX-Retarget'] = '#modals-here'
+        response['HX-Retarget'] = '#offcanvas-here'
         response['HX-Reswap'] = 'innerHTML'
+        return response
+    
+class StoreAddPersonFormView(CreateView):
+    model = Person
+    form_class = PersonForm
+    template_name = 'myapp/store/partials/add_person_form.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.htmx and request.htmx.request:
+            return super().dispatch(request, *args, **kwargs)
+        return HttpResponseForbidden("<h1>Access Denied</h1>")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['target_formset'] = self.request.GET.get('target_formset', '')
+        return context
+    
+    def form_valid(self, form):
+        context = self.get_context_data(form=form)
+        try:
+            # Save the form but don't redirect
+            self.object = form.save()
+            # messages.success(self.request, 'Person created successfully!')
+            
+            # Add option tag directly as OOB swap
+            option_tag = f'<option value="{self.object.id}" selected>{self.object}</option>'
+            response = HttpResponse(option_tag)
+            response['HX-Trigger'] = json.dumps({
+                "close_offcanvas": {"element_id": "offcanvas-child-1-here"},
+            })
+            return response
+        except Exception as e:
+            # messages.error(self.request, f'Error creating person: {str(e)}')
+            form.add_error(None, f'Error creating person: {str(e)}')
+            print(f"form.errors: {form.errors}")
+            response = self.render_to_response(context)
+            response['HX-Retarget'] = '#offcanvas-child-1-here'
+            response['HX-Reswap'] = 'innerHTML'
+            return response
+
+    def form_invalid(self, form):
+        # messages.error(self.request, 'Please correct the errors below.')
+        context = self.get_context_data(form=form)
+        response = self.render_to_response(context)
+        response['HX-Retarget'] = '#offcanvas-child-1-here'
+        response['HX-Reswap'] = 'innerHTML'
+        # response['HX-Trigger-After-Swap'] = 'fail'
+        return response
+
+class StoreAddPublisherFormView(CreateView):
+    model = Publisher
+    form_class = PublisherForm
+    template_name = 'myapp/store/partials/add_publisher_form.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.htmx and request.htmx.request:
+            return super().dispatch(request, *args, **kwargs)
+        return HttpResponseForbidden("<h1>Access Denied</h1>")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['target_formset'] = self.request.GET.get('target_formset', '')
+        return context
+    
+    def form_valid(self, form):
+        context = self.get_context_data(form=form)
+        try:
+            # Save the form but don't redirect
+            self.object = form.save()
+            # messages.success(self.request, 'Person created successfully!')
+            
+            # Add option tag directly as OOB swap
+            option_tag = f'<option value="{self.object.id}" selected>{self.object}</option>'
+            response = HttpResponse(option_tag)
+            response['HX-Trigger'] = json.dumps({
+                "close_offcanvas": {"element_id": "offcanvas-child-1-here"},
+            })
+            return response
+        except Exception as e:
+            # messages.error(self.request, f'Error creating person: {str(e)}')
+            form.add_error(None, f'Error creating person: {str(e)}')
+            print(f"form.errors: {form.errors}")
+            response = self.render_to_response(context)
+            response['HX-Retarget'] = '#offcanvas-child-1-here'
+            response['HX-Reswap'] = 'innerHTML'
+            return response
+
+    def form_invalid(self, form):
+        # messages.error(self.request, 'Please correct the errors below.')
+        context = self.get_context_data(form=form)
+        response = self.render_to_response(context)
+        response['HX-Retarget'] = '#offcanvas-child-1-here'
+        response['HX-Reswap'] = 'innerHTML'
+        # response['HX-Trigger-After-Swap'] = 'fail'
         return response

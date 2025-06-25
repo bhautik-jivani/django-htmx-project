@@ -27,7 +27,9 @@ htmx_urlpatterns = [
     path('book/create/add-publisher/', views.AddPublisherFormView.as_view(), name='add_publisher_form_view'),
     path('store/add-book-formset/', views.AddBookFormsetView.as_view(), name='add_book_formset_view'),
     path('store/remove-book-formset/', views.RemoveBookFormsetView.as_view(), name='remove_book_formset_view'),
-    path('store/add-book/', views.AddBookFormView.as_view(), name='add_book_form_view'),
+    path('store/add-book/', views.StoreAddBookFormView.as_view(), name='store_add_book_form_view'),
+    path('store/add-person/', views.StoreAddPersonFormView.as_view(), name='store_add_person_form_view'),
+    path('store/add-publisher/', views.StoreAddPublisherFormView.as_view(), name='store_add_publisher_form_view'),
 ]
 
 urlpatterns += htmx_urlpatterns
