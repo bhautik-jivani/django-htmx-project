@@ -33,6 +33,7 @@ class StoreCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['store_nav'] = 'active'
         if self.request.POST:
             context['formset'] = StoreBookFormSet(self.request.POST)
         else:
@@ -71,6 +72,7 @@ class StoreUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['store_nav'] = 'active'
         if self.request.POST:
             context['formset'] = StoreBookFormSet(self.request.POST, instance=self.object)
         else:

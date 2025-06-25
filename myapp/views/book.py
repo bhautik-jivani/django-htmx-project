@@ -30,6 +30,11 @@ class BookCreateView(CreateView):
     template_name = 'myapp/book/create_form.html'
     success_url = reverse_lazy('myapp:book_list_view')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['book_nav'] = 'active'
+        return context
+
     # # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
     # def dispatch(self, request, *args, **kwargs):
     #     if request.htmx and request.htmx.request:
@@ -54,6 +59,11 @@ class BookUpdateView(UpdateView):
     # fields = ['first_name', 'last_name']
     template_name = 'myapp/book/update_form.html'
     success_url = reverse_lazy('myapp:book_list_view')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['book_nav'] = 'active'
+        return context
 
     # # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
     # def dispatch(self, request, *args, **kwargs):

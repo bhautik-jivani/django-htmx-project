@@ -35,6 +35,11 @@ class PublisherCreateView(CreateView):
     template_name = 'myapp/publisher/create_form.html'
     success_url = reverse_lazy('myapp:publisher_list_view')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['publisher_nav'] = 'active'
+        return context
+
     # # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
     # def dispatch(self, request, *args, **kwargs):
     #     if request.htmx and request.htmx.request:
@@ -65,6 +70,11 @@ class PublisherUpdateView(UpdateView):
     # fields = ['first_name', 'last_name']
     template_name = 'myapp/publisher/update_form.html'
     success_url = reverse_lazy('myapp:publisher_list_view')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['publisher_nav'] = 'active'
+        return context
 
     # # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
     # def dispatch(self, request, *args, **kwargs):
