@@ -31,52 +31,104 @@ Update Store
         {% include "myapp/store/partials/add_book_formset.html" with formset=formset object=object %}
     </div>
     <div>
-        <button type="button" class="btn btn-outline-primary my-2" id="add-book-form-button" hx-post="{% url 'myapp:add_book_formset_view' %}" hx-target="#add-book-form-container" hx-swap="innerHTML">+Add More Items</button>
+        <button
+            type="button"
+            class="btn btn-outline-primary my-2"
+            id="add-book-formset-button"
+            hx-post="{% url 'myapp:add_book_formset_view' %}"
+            hx-target="#add-book-formset-container"
+            hx-swap="innerHTML"
+            hx-indicator="#loading-spinner"
+        >
+            +Add More Items
+        </button>
     </div>
-
     <button type="submit" class="btn btn-outline-primary my-2">Save</button>
     <a href="{% url 'myapp:store_list_view' %}" class="btn btn-outline-secondary my-2">Cancel</a>
 </form>
 
-<div id="modals-here"
-    data-bs-backdrop="static"
-    data-bs-keyboard="false"
-    class="modal fade"
-    aria-labelledby="modalHereLabel"
-    aria-hidden="true"
-    style="display: none"
-    tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content"></div>
-    </div>
-</div>
-
+<div id="offcanvas-here"></div>
 {% endblock %}
 
 {% block scripts %}
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Handle modal closing
-        document.addEventListener('closemodal', function() {
-            const modalElement = document.getElementById('modals-here');
-            const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-            // const modal = new bootstrap.Modal(modalElement);
-
-            console.log(modal._isShown);
-            // modalElement.setAttribute('aria-hidden', 'true');
-            // modalElement.removeAttribute('aria-modal');
-            // modalElement.removeAttribute('tabindex');
-            
-            // Handle modal hidden
-            modal.hide();
+        // Handle offcanvas closing
+        document.addEventListener('close_offcanvas', function(event) {
+            const element_id = event.detail.element_id;
+            const offcanvasElement = document.getElementById(element_id);
+            offcanvasElement.innerHTML = '';
+            if(element_id == 'offcanvas-here') {
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            }
         });
+
+        // Handle add_book_option_tag custom event
+        document.body.addEventListener('add_book_option_tag', function(event) {
+            let optionHTML = event.detail.option_tag;
+            console.log("optionHTML",optionHTML);
+
+            // Remove 'selected' attribute from the option tag
+            optionHTML = optionHTML.replace(/\s+selected(=["']?[^"'\s>]*)?/i, '');
+            
+
+            // Append optionHTML directly to all relevant <select> elements
+            document.querySelectorAll('select[id^="id_storebook_set-"][id$="-book"]').forEach(select => {
+                // Skip if option with same value already exists
+                if (!select.querySelector(`option[value="${getOptionValue(optionHTML)}"]`)) {
+
+                    select.insertAdjacentHTML('beforeend', optionHTML);
+                }
+            });
+
+            // Helper function to extract value from option tag string
+            function getOptionValue(optionHTML) {
+                const match = optionHTML.match(/value=["']?([^"'>\s]+)/i);
+                return match ? match[1] : '';
+            }
+        });
+
+
+        // Handle add_person_option_tag custom event
+        document.body.addEventListener('add_person_option_tag', function(event) {
+            console.log("event.detail",event.detail);
+            
+            let target_formset = event.detail.target_formset;
+            let optionHTML = event.detail.option_tag;
+            console.log("target_formset",target_formset);
+            console.log("optionHTML",optionHTML);
+
+            const target_formset_element = document.getElementById(`#${target_formset}`);
+            target_formset_element.click();
+
+            // Remove 'selected' attribute from the option tag
+            // optionHTML = optionHTML.replace(/\s+selected(=["']?[^"'\s>]*)?/i, '');
+            
+
+            // Append optionHTML directly to all relevant <select> elements
+            document.querySelectorAll('#id_persons').forEach(select => {
+                // Skip if option with same value already exists
+                if (!select.querySelector(`option[value="${getOptionValue(optionHTML)}"]`)) {
+
+                    select.insertAdjacentHTML('beforeend', optionHTML);
+                }
+            });
+
+            // Helper function to extract value from option tag string
+            function getOptionValue(optionHTML) {
+                const match = optionHTML.match(/value=["']?([^"'>\s]+)/i);
+                return match ? match[1] : '';
+            }
+        });
+
 
         document.addEventListener('update_formset_button', function() {
             console.log('update_formset_count');
             const formsetCount = document.getElementById(`id_{{formset.prefix}}-TOTAL_FORMS`);
             const formsetMaxCount = document.getElementById(`id_{{formset.prefix}}-MAX_NUM_FORMS`);
-            const addBookFormButton = document.getElementById('add-book-form-button');
+            const addBookFormButton = document.getElementById('add-book-formset-button');
             
             if (formsetCount.value < formsetMaxCount.value) {
                 addBookFormButton.disabled = false;
