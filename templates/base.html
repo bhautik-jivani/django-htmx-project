@@ -21,25 +21,14 @@
     
     <!-- Datatable css -->
     <link href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.datatables.net/2.3.2/css/dataTables.bootstrap5.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.datatables.net/columncontrol/1.0.6/css/columnControl.dataTables.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.datatables.net/buttons/3.2.3/css/buttons.dataTables.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.datatables.net/responsive/3.0.4/css/responsive.dataTables.css" rel="stylesheet" type="text/css" />
+
     
     <style>
-        /* .htmx-indicator {
-            display: none;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .htmx-request .htmx-indicator,
-        .htmx-request.htmx-indicator {
-            display: block;
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        body.htmx-request {
-            overflow: hidden;
-        } */
         .htmx-indicator{
             display:none;
         }
@@ -49,7 +38,14 @@
         .htmx-request.htmx-indicator{
             display:inline;
         }
-
+        .dt-container .dt-paging .dt-paging-button {
+            padding: 0 !important;
+            margin-left: 0 !important;
+        }
+        .dt-container .dt-paging .dt-paging-button:hover {
+            border: none !important;
+            background: none !important;
+        }
     </style>
 
     {% block styles %}{% endblock %}
@@ -83,6 +79,15 @@
 
     <!-- Datatable js -->
     <script src="https://cdn.datatables.net/2.3.2/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
+    <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.3.2/js/dataTables.bootstrap5.js"></script>
+    <script src="https://cdn.datatables.net/columncontrol/1.0.6/js/dataTables.columnControl.js"></script>
+    <script src="https://cdn.datatables.net/columncontrol/1.0.6/js/columnControl.dataTables.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.3/js/dataTables.buttons.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.2.3/js/buttons.dataTables.js"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.4/js/dataTables.responsive.js"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.4/js/responsive.dataTables.js"></script>
     
     {% block scripts %}
     {% endblock %}

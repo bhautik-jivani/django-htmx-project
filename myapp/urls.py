@@ -24,6 +24,9 @@ urlpatterns = [
 
 api_urlpatterns = [
     path('api/person/', views.PersonAPIView.as_view(), name='person_api_view'),
+    path('api/publisher/', views.PublisherAPIView.as_view(), name='publisher_api_view'),
+    path('api/book/', views.BookAPIView.as_view(), name='book_api_view'),
+    path('api/store/', views.StoreAPIView.as_view(), name='store_api_view'),
 ]
 
 htmx_urlpatterns = [

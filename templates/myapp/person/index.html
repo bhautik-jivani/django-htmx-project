@@ -5,22 +5,6 @@
 Person List
 {% endblock %}
 
-{% block styles %}
-<link href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css" rel="stylesheet" type="text/css" />
-<link href="https://cdn.datatables.net/2.3.2/css/dataTables.bootstrap5.css" rel="stylesheet" type="text/css" />
-
-<style>
-.dt-container .dt-paging .dt-paging-button {
-    padding: 0 !important;
-    margin-left: 0 !important;
-}
-.dt-container .dt-paging .dt-paging-button:hover {
-    border: none !important;
-    background: none !important;
-}
-</style>
-{% endblock %}
-
 {% block content %}
 <h1>Person List</h1>
 
@@ -55,63 +39,28 @@ Person List
 
 {% block scripts %}
 
-<script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
-<script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
-<script src="https://cdn.datatables.net/2.3.2/js/dataTables.bootstrap5.js"></script>
-
 <script>
     $(document).ready(function () {
         "use strict";
-        let storedPageStart = parseInt(localStorage.getItem("person_datatable_page_start") || 0);
-        let storedPageLength = parseInt(localStorage.getItem("person_datatable_page_length") || 5);
         
         let table = $("#person-datatable").DataTable({
             processing: true,
             serverSide: true,
+            searching: true,
             ajax: {
                 url: "{% url 'myapp:person_api_view' %}",  // Backend endpoint
                 type: "GET",
-                data: function (d) {
-                    console.log("d",d);
-                    
-                    storedPageStart = storedPageStart == d.start ? storedPageStart : d.start;
-                    storedPageLength = storedPageLength == d.length ? storedPageLength : d.length;
-                    return {
-                        start: storedPageStart,
-                        length: storedPageLength,
-                        draw: d.draw,  // Send the draw value to the server
-                        // start: d.start,  // DataTables handles pagination
-                        // length: d.length,  // Number of records per page
-                        search: d.search.value || "",  // Correct search field
-                        order_column: d.order.length > 0 ? d.order[0].column: 1,  // Send order column index
-                        order_dir: d.order.length > 0 ? d.order[0].dir: "desc"  // Send order direction (asc/desc)
-                    };
-                },
-                // dataFilter: function (data) {
-                //     let json = JSON.parse(data);
-                //     return JSON.stringify({
-                //         // draw: json.draw,  // Return the same draw value
-                //         recordsTotal: json.recordsTotal,  // Total records
-                //         recordsFiltered: json.recordsFiltered,  // Filtered count
-                //         data: json.data  // Data array
-                //     });
-                // },
             },
             language: {
-                // paginate: {
-                //     previous: "<i class='mdi mdi-chevron-left'></i>", 
-                //     next: "<i class='mdi mdi-chevron-right'></i>"
-                // },
-                // info: "Showing persons _START_ to _END_ of _TOTAL_",
-                lengthMenu: 'Display <select class="form-select form-select-sm mx-1">' +
-                            '<option value="5">5</option>' +
-                            '<option value="10">10</option>' +
-                            '<option value="20">20</option>' +
-                            '<option value="50">50</option>' +
-                            "</select> persons",
+                lengthMenu: `Display 
+                    <select class="form-select form-select-sm mx-1">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select> persons
+                `,
             },
-            pageLength: storedPageLength,
-            displayStart: storedPageStart,
             columns: [
                 { 
                     data: "id", render: (data, type, row) => {
@@ -126,10 +75,6 @@ Person List
                     data: null,
                     orderable: false,
                     render: function (data, type, row) {
-                        // console.log("data", data);
-                        // console.log("type", type);
-                        // console.log("row", row);
-                        
                         let editUri = `{% url 'myapp:person_update_view' '0' %}`.replace("0", row.id);
                         
                         return `<div class="btn-group">
@@ -140,7 +85,6 @@ Person List
                     } 
                 },  // Actions column
             ],
-            // select: { style: "multi" },
             order: [[0, "desc"]],
             stateSave: true,
             "columnDefs": [
@@ -149,26 +93,7 @@ Person List
                     "orderSequence": ["asc", "desc"] // ONLY allow asc/desc
                 }
             ],
-            // drawCallback: function () {
-                
-            //     let info = table.page.info();
-            //     let totalRecords = info.recordsDisplay;
-            //     console.log("totalRecords", totalRecords);
-                
-                
-            //     // If last record on the last page is deleted, move to the previous page
-            //     if (storedPageStart >= totalRecords) {
-            //         storedPageStart = Math.max(0, storedPageStart - storedPageLength);
-            //     }
-                
-            //     localStorage.setItem("person_datatable_page_start", storedPageStart);
-            //     localStorage.setItem("person_datatable_page_length", storedPageLength);
-                
-            //     // Update info display manually to prevent "6 to 5 of 5" issue
-            //     $(".dataTables_info").text(`Showing persons ${storedPageStart + 1} to ${Math.min(info.end, totalRecords)} of ${totalRecords}`);
-            // },
         });
-        
     });
 </script>
 {% endblock %}
