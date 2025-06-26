@@ -9,6 +9,9 @@ from django.http import HttpResponseForbidden, HttpResponse
 from myapp.forms import BookForm, PersonForm, PublisherForm
 from myapp.models import Book, Person, Publisher
 
+# third party library imports
+import json
+
 
 # Create your views here.
 class BookListView(ListView):
@@ -26,6 +29,11 @@ class BookCreateView(CreateView):
     # fields = ['first_name', 'last_name']
     template_name = 'myapp/book/create_form.html'
     success_url = reverse_lazy('myapp:book_list_view')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['book_nav'] = 'active'
+        return context
 
     # # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
     # def dispatch(self, request, *args, **kwargs):
@@ -51,6 +59,11 @@ class BookUpdateView(UpdateView):
     # fields = ['first_name', 'last_name']
     template_name = 'myapp/book/update_form.html'
     success_url = reverse_lazy('myapp:book_list_view')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['book_nav'] = 'active'
+        return context
 
     # # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
     # def dispatch(self, request, *args, **kwargs):
@@ -90,15 +103,16 @@ class AddPersonFormView(CreateView):
             # Add option tag directly as OOB swap
             option_tag = f'<option value="{self.object.id}" selected>{self.object}</option>'
             response = HttpResponse(option_tag)
-            # response['HX-Trigger'] = 'closemodal'
-            response['HX-Trigger-After-Swap'] = 'closemodal'
+            response['HX-Trigger'] = json.dumps({
+                "close_offcanvas": {"element_id": "offcanvas-here"},
+            })
             return response
         except Exception as e:
             # messages.error(self.request, f'Error creating person: {str(e)}')
             form.add_error(None, f'Error creating person: {str(e)}')
             print(f"form.errors: {form.errors}")
             response = self.render_to_response(context)
-            response['HX-Retarget'] = '#modals-here'
+            response['HX-Retarget'] = '#offcanvas-here'
             response['HX-Reswap'] = 'innerHTML'
             return response
 
@@ -106,7 +120,7 @@ class AddPersonFormView(CreateView):
         # messages.error(self.request, 'Please correct the errors below.')
         context = self.get_context_data(form=form)
         response = self.render_to_response(context)
-        response['HX-Retarget'] = '#modals-here'
+        response['HX-Retarget'] = '#offcanvas-here'
         response['HX-Reswap'] = 'innerHTML'
         # response['HX-Trigger-After-Swap'] = 'fail'
         return response
@@ -132,13 +146,15 @@ class AddPublisherFormView(CreateView):
             # Add option tag directly as OOB swap
             option_tag = f'<option value="{self.object.id}" selected>{self.object.name}</option>'
             response = HttpResponse(option_tag)
-            response['HX-Trigger'] = 'closemodal'
+            response['HX-Trigger'] = json.dumps({
+                "close_offcanvas": {"element_id": "offcanvas-here"},
+            })
             return response
         except Exception as e:
             # messages.error(self.request, f'Error creating publisher: {str(e)}')
             form.add_error(None, f'Error creating publisher: {str(e)}')
             response = self.render_to_response(context)
-            response['HX-Retarget'] = '#modals-here'
+            response['HX-Retarget'] = '#offcanvas-here'
             response['HX-Reswap'] = 'innerHTML'
             return response
 
@@ -146,7 +162,7 @@ class AddPublisherFormView(CreateView):
         # messages.error(self.request, 'Please correct the errors below.')
         context = self.get_context_data(form=form)
         response = self.render_to_response(context)
-        response['HX-Retarget'] = '#modals-here'
+        response['HX-Retarget'] = '#offcanvas-here'
         response['HX-Reswap'] = 'innerHTML'
         return response
 

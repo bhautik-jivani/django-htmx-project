@@ -1,10 +1,10 @@
 {% load crispy_forms_tags %}
 
-<form hx-post="{% url 'myapp:add_publisher_form_view' %}" hx-target="#id_publisher" hx-swap="beforeend" novalidate>
+<form hx-post="{% url 'myapp:store_add_publisher_form_view' %}?target_formset={{target_formset}}" hx-target="#id_publisher" hx-swap="beforeend" novalidate>
     <div class="offcanvas offcanvas-end show" tabindex="-1" id="offcanvas" data-bs-backdrop="static" aria-labelledby="offcanvasRightLabel">
         <div class="offcanvas-header border-bottom">
           <h5 class="offcanvas-title" id="offcanvasRightLabel">Add Publisher</h5>
-          <button type="button" class="btn-close" hx-on:click="document.getElementById('offcanvas-here').innerHTML = '';document.body.style.overflow = '';document.body.style.paddingRight = '';" aria-label="Close"></button>
+          <button type="button" class="btn-close" hx-on:click="document.getElementById('offcanvas-child-1-here').innerHTML = '';" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body text-start">
             {% csrf_token %}
@@ -25,12 +25,11 @@
             {% for field in form %}
                 {{ field|as_crispy_field }}
             {% endfor %}
+        
         </div>
         <div class="offcanvas-footer p-3 border-top">
-            <button type="button" id="close-modal" class="btn btn-secondary" hx-on:click="document.getElementById('offcanvas-here').innerHTML = '';document.body.style.overflow = '';document.body.style.paddingRight = '';">Close</button>
+            <button type="button" id="close-modal" class="btn btn-secondary" hx-on:click="document.getElementById('offcanvas-child-1-here').innerHTML = '';">Close</button>
             <button type="submit" class="btn btn-primary">Save Changes</button>
         </div>
     </div>
 </form>
-
-<div class="offcanvas-backdrop fade show"></div>
