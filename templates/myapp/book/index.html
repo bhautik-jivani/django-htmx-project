@@ -20,33 +20,86 @@ Book List
 
 <div>
     <a href="{% url 'myapp:book_create_view' %}" class="btn btn-outline-primary">Add Book</a>
-    <table class="table" >
+    <table class="table table-sm table-hover" id="book-datatable">
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Pages</th>
-                <th>Price</th>
-                <th>Rating</th>
-                <th>Publisher</th>
-                <th>Pubdate</th>
-                <th>Action</th>
+                <th scope="col">ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Pages</th>
+                <th scope="col">Price</th>
+                <th scope="col">Rating</th>
+                <th scope="col">Publisher</th>
+                <th scope="col">Pubdate</th>
+                <th scope="col">Action</th>
             </tr>
         </thead>
         <tbody>
-            {% for book in object_list %}
-            <tr>
-                <td>{{ book.name }}</td>
-                <td>{{ book.pages }}</td>
-                <td>{{ book.price }}</td>
-                <td>{{ book.rating }}</td>
-                <td>{{ book.publisher.name }}</td>
-                <td>{{ book.pubdate }}</td>
-                <td>
-                    <a href="{% url 'myapp:book_update_view' book.id %}" class="btn btn-outline-primary">Edit</a>
-                </td>
-            </tr>
-            {% endfor %}
         </tbody>
     </table>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        "use strict";
+        
+        let table = $("#book-datatable").DataTable({
+            processing: true,
+            serverSide: true,
+            responsive: true,
+            ajax: {
+                url: "{% url 'myapp:book_api_view' %}",  // Backend endpoint
+                type: "GET",
+            },
+            language: {
+                lengthMenu: `Display 
+                    <select class="form-select form-select-sm mx-1">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select> books
+                `,
+            },
+            columns: [
+                { 
+                    data: "id", render: (data, type, row) => {
+                        let detailUri = `{% url 'myapp:book_update_view' '0' %}`.replace('0', row.id);
+                        return `<a href="${detailUri}">${data}</a>`
+                    },
+                },
+                { data: "name" },
+                { data: "pages" },
+                { data: "price" },
+                { data: "rating" },
+                { data: "publisher" },
+                { data: "pubdate", width: "150px" },
+                { 
+                    data: null,
+                    orderable: false,
+                    width: "150px",
+                    render: function (data, type, row) {
+                        
+                        let editUri = `{% url 'myapp:book_update_view' '0' %}`.replace("0", row.id);
+                        
+                        return `<div class="btn-group">
+                                    <a type="button" class="btn btn-sm btn-outline-primary" href="${editUri}">
+                                        <i class="bi bi-pencil font-16 me-1"></i> Edit
+                                    </a>
+                                </div>`;
+                    } 
+                },  // Actions column
+            ],
+            order: [[0, "desc"]],
+            stateSave: true,
+            "columnDefs": [
+                {
+                    "targets": '_all',
+                    "orderSequence": ["asc", "desc"] // ONLY allow asc/desc
+                }
+            ],
+        });
+    });
+</script>
 {% endblock %}

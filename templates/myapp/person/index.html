@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}
 Person List
@@ -18,11 +19,12 @@ Person List
 </div>
 {% endif %}
 
-<div>
+<div class="mb-2">
     <a href="{% url 'myapp:person_create_view' %}" class="btn btn-outline-primary">Add Person</a>
-    <table class="table" >
+    <table class="table table-sm table-hover" id="person-datatable">
         <thead>
             <tr>
+                <th>ID</th>
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Role</th>
@@ -30,17 +32,68 @@ Person List
             </tr>
         </thead>
         <tbody>
-            {% for person in object_list %}
-            <tr>
-                <td>{{ person.first_name }}</td>
-                <td>{{ person.last_name }}</td>
-                <td>{{ person.get_role_display }}</td>
-                <td>
-                    <a href="{% url 'myapp:person_update_view' person.id %}" class="btn btn-outline-primary">Edit</a>
-                </td>
-            </tr>
-            {% endfor %}
         </tbody>
     </table>
 </div>
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+    $(document).ready(function () {
+        "use strict";
+        
+        let table = $("#person-datatable").DataTable({
+            processing: true,
+            serverSide: true,
+            responsive: true,
+            ajax: {
+                url: "{% url 'myapp:person_api_view' %}",  // Backend endpoint
+                type: "GET",
+            },
+            language: {
+                lengthMenu: `Display 
+                    <select class="form-select form-select-sm mx-1">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select> persons
+                `,
+            },
+            columns: [
+                { 
+                    data: "id", render: (data, type, row) => {
+                        let detailUri = `{% url 'myapp:person_update_view' '0' %}`.replace('0', row.id);
+                        return `<a href="${detailUri}">${data}</a>`
+                    },
+                },
+                { data: "first_name" },
+                { data: "last_name" },
+                { data: "role_name" },
+                { 
+                    data: null,
+                    orderable: false,
+                    render: function (data, type, row) {
+                        let editUri = `{% url 'myapp:person_update_view' '0' %}`.replace("0", row.id);
+                        
+                        return `<div class="btn-group">
+                                    <a type="button" class="btn btn-sm btn-outline-primary" href="${editUri}">
+                                        <i class="bi bi-pencil font-16 me-1"></i> Edit
+                                    </a>
+                                </div>`;
+                    } 
+                },  // Actions column
+            ],
+            order: [[0, "desc"]],
+            stateSave: true,
+            "columnDefs": [
+                {
+                    "targets": '_all',
+                    "orderSequence": ["asc", "desc"] // ONLY allow asc/desc
+                }
+            ],
+        });
+    });
+</script>
 {% endblock %}

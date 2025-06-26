@@ -27,6 +27,11 @@ class PersonCreateView(CreateView):
     # fields = ['first_name', 'last_name']
     template_name = 'myapp/person/create_form.html'
     success_url = reverse_lazy('myapp:person_list_view')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person_nav'] = 'active'
+        return context
 
     def form_valid(self, form):
         try:
@@ -52,6 +57,11 @@ class PersonUpdateView(UpdateView):
     # fields = ['first_name', 'last_name']
     template_name = 'myapp/person/update_form.html'
     success_url = reverse_lazy('myapp:person_list_view')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person_nav'] = 'active'
+        return context
 
     def form_valid(self, form):
         try:

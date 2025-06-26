@@ -38,11 +38,9 @@
                                     <button
                                         type="button"
                                         class="btn btn-outline-primary"
-                                        hx-get="{% url 'myapp:add_book_form_view' %}?target_formset=id_{{form.prefix}}-book"
-                                        hx-target="#modals-here"
-                                        hx-trigger="click"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modals-here"
+                                        hx-get="{% url 'myapp:store_add_book_form_view' %}?target_formset=id_{{form.prefix}}-book"
+                                        hx-target="#offcanvas-here"
+                                        hx-on:click="document.body.style.overflow = 'hidden';document.body.style.paddingRight = '15px';"
                                     >
                                         <i class="bi bi-plus"></i>
                                     </button>

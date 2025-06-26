@@ -20,25 +20,77 @@ Store List
 
 <div>
     <a href="{% url 'myapp:store_create_view' %}" class="btn btn-outline-primary">Add Store</a>
-    <table class="table" >
+    <table class="table table-sm table-hover" id="store-datatable">
         <thead>
             <tr>
+                <th>ID</th>
                 <th>Name</th>
                 <th>Books</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            {% for store in object_list %}
-            <tr>
-                <td>{{ store.name }}</td>
-                <td>{{ store.storebook_set.count }}</td>
-                <td>
-                    <a href="{% url 'myapp:store_update_view' store.id %}" class="btn btn-outline-primary">Edit</a>
-                </td>
-            </tr>
-            {% endfor %}
         </tbody>
     </table>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        "use strict";
+        
+        let table = $("#store-datatable").DataTable({
+            processing: true,
+            serverSide: true,
+            responsive: true,
+            ajax: {
+                url: "{% url 'myapp:store_api_view' %}",  // Backend endpoint
+                type: "GET",
+            },
+            language: {
+                lengthMenu: `Display 
+                    <select class="form-select form-select-sm mx-1">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select> books
+                `,
+            },
+            columns: [
+                { 
+                    data: "id", render: (data, type, row) => {
+                        let detailUri = `{% url 'myapp:store_update_view' '0' %}`.replace('0', row.id);
+                        return `<a href="${detailUri}">${data}</a>`
+                    },
+                },
+                { data: "name" },
+                { data: "books" },
+                { 
+                    data: null,
+                    orderable: false,
+                    render: function (data, type, row) {
+                        
+                        let editUri = `{% url 'myapp:store_update_view' '0' %}`.replace("0", row.id);
+                        
+                        return `<div class="btn-group">
+                                    <a type="button" class="btn btn-sm btn-outline-primary" href="${editUri}">
+                                        <i class="bi bi-pencil font-16 me-1"></i> Edit
+                                    </a>
+                                </div>`;
+                    } 
+                },  // Actions column
+            ],
+            order: [[0, "desc"]],
+            stateSave: true,
+            "columnDefs": [
+                {
+                    "targets": '_all',
+                    "orderSequence": ["asc", "desc"] // ONLY allow asc/desc
+                }
+            ],
+        });
+    });
+</script>
 {% endblock %}
