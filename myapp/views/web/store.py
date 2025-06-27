@@ -191,11 +191,11 @@ class StoreAddBookFormView(CreateView):
     form_class = BookForm
     template_name = 'myapp/store/partials/add_book_form.html'
 
-    # # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
-    # def dispatch(self, request, *args, **kwargs):
-    #     if request.htmx and request.htmx.request:
-    #         return super().dispatch(request, *args, **kwargs)
-    #     return HttpResponseForbidden("<h1>Access Denied</h1>")
+    # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
+    def dispatch(self, request, *args, **kwargs):
+        if request.htmx and request.htmx.request:
+            return super().dispatch(request, *args, **kwargs)
+        return HttpResponseForbidden("<h1>Access Denied</h1>")
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
