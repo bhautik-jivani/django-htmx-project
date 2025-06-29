@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.http import HttpResponseForbidden, HttpResponseRedirect, HttpResponse
 from django.db import transaction
 from django.forms import inlineformset_factory
+from django.views.generic.edit import FormMixin
 
 # project imports
 from myapp.forms import StoreForm, StoreBookFormSet, StoreBookForm, BookForm, PersonForm, PublisherForm
@@ -101,23 +102,27 @@ class StoreUpdateView(UpdateView):
             return self.render_to_response(context)
 
 
-class AddBookFormsetView(View):
+class AddBookFormsetView(FormMixin, View):
     # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
     def dispatch(self, request, *args, **kwargs):
         if request.htmx and request.htmx.request:
             return super().dispatch(request, *args, **kwargs)
         return HttpResponseForbidden("<h1>Access Denied</h1>")
-
-    def post(self, request):
-        formset = StoreBookFormSet(request.POST)
-        initial_form_count = formset.initial_form_count()
-        inital_data = []
+    
+    def get_initial(self, formset):
+        initial = []
         for form in formset.forms:
             data = {}
             for field in form:
                 if field.name != 'DELETE':
                     data[field.name] = field.data
-            inital_data.append(data)
+            initial.append(data)
+        return initial
+
+    def post(self, request):
+        formset = StoreBookFormSet(request.POST)
+        initial_form_count = formset.initial_form_count()
+        inital_data = self.get_initial(formset)
         extra = len(inital_data)
         StoreBookFormSet_Custom = inlineformset_factory(
             Store,
@@ -136,12 +141,22 @@ class AddBookFormsetView(View):
         response['HX-Trigger-After-Swap'] = 'update_formset_button'
         return response
 
-class RemoveBookFormsetView(View):
+class RemoveBookFormsetView(FormMixin, View):
     # This is a custom dispatch method(applies to all HTTP methods) to check if the request is an HTMX request
     def dispatch(self, request, *args, **kwargs):
         if request.htmx and request.htmx.request:
             return super().dispatch(request, *args, **kwargs)
         return HttpResponseForbidden("<h1>Access Denied</h1>")
+    
+    def get_initial(self, formset):
+        initial = []
+        for form in formset.forms:
+            data = {}
+            for field in form:
+                if field.name != 'DELETE':
+                    data[field.name] = field.data
+            initial.append(data)
+        return initial
 
     def post(self, request):
         index = request.POST.get('index', 0)
@@ -160,12 +175,7 @@ class RemoveBookFormsetView(View):
             store_book_queryset.delete()
         formset.forms.pop(index)
 
-        inital_data = []
-        for form in formset.forms:
-            data = {}
-            for field in form:
-                data[field.name] = field.data
-            inital_data.append(data)
+        inital_data = self.get_initial(formset)
         
         extra = len(inital_data) - 1 if len(inital_data) > 1 else 0
         StoreBookFormSet_Custom = inlineformset_factory(
