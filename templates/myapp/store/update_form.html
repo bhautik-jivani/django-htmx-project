@@ -27,7 +27,7 @@ Update Store
     {% for field in form %}
         {{ field|as_crispy_field }}
     {% endfor %}
-    <div id="add-book-form-container">
+    <div id="add-book-formset-container">
         {% include "myapp/store/partials/add_book_formset.html" with formset=formset object=object %}
     </div>
     <div>
