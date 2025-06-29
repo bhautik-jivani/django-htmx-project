@@ -122,6 +122,7 @@ class AddBookFormsetView(FormMixin, View):
     def post(self, request):
         formset = StoreBookFormSet(request.POST)
         initial_form_count = formset.initial_form_count()
+        # Get the initial data for the formset
         inital_data = self.get_initial(formset)
         extra = len(inital_data)
         StoreBookFormSet_Custom = inlineformset_factory(
@@ -175,6 +176,7 @@ class RemoveBookFormsetView(FormMixin, View):
             store_book_queryset.delete()
         formset.forms.pop(index)
 
+        # Get the initial data for the formset
         inital_data = self.get_initial(formset)
         
         extra = len(inital_data) - 1 if len(inital_data) > 1 else 0
